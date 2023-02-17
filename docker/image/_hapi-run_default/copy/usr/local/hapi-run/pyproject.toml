@@ -1,0 +1,15 @@
+[project]
+name = 'HapiRun'
+version = '0.1.0'
+
+dependencies = [
+    'click'
+]
+
+[build-system]
+requires = ['setuptools>=42']
+build-backend = 'setuptools.build_meta'
+
+[project.scripts]
+hapi-run = 'hapirun:hapi_run'
+

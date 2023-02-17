@@ -1,0 +1,67 @@
+export HCS_UID="${HCS_UID:-$(id -u)}"
+export HCS_GID="${HCS_GID:-$(id -g)}"
+
+# Postgresql related
+export HCS_PG_IMAGE_DIR_DEFAULT="${HCS_PG_IMAGE_DIR_DEFAULT:-docker/image/_postgresql_default}"
+export HCS_PG_IMAGE_DIR="${HCS_PG_IMAGE_DIR:-${HCS_PG_IMAGE_DIR_DEFAULT}}"
+export HCS_PG_CONTAINER_DIR="${HCS_PG_CONTAINER_DIR:-docker/container/postgresql}"
+#export HCS_PG_UID="${HCS_PG_UID:-$(id -u)}"
+export HCS_PG_PASSWORD="${HCS_PG_PASSWORD:-postgres}"
+export HCS_PG_HOST="${HCS_PG_HOST:-127.0.0.1}"
+export HCS_PG_PORT="${HCS_PG_PORT:-15432}"
+
+# Elasticsearch
+export HCS_ESREST_IMAGE_DIR_DEFAULT="${HCS_ESREST_IMAGE_DIR_DEFAULT:-docker/image/_elasticsearch_default}"
+export HCS_ESREST_IMAGE_DIR="${HCS_ESREST_IMAGE_DIR:-${HCS_ESREST_IMAGE_DIR_DEFAULT}}"
+export HCS_ESREST_CONTAINER_DIR="${HCS_ESREST_CONTAINER_DIR:-docker/container/elasticsearch}"
+export HCS_ESREST_HOST="${HCS_ESREST_HOST:-127.0.0.1}"
+export HCS_ESREST_PORT="${HCS_ESREST_PORT:-19200}"
+#export OSPERF_HOST="${OSPERF_HOST:-127.0.0.1}"
+#export OSPERF_PORT="${OSPERF_PORT:-19600}"
+
+# Kibana
+export HCS_KIBANA_IMAGE_DIR_DEFAULT="${HCS_KIBANA_IMAGE_DIR_DEFAULT:-docker/image/_kibana_default}"
+export HCS_KIBANA_IMAGE_DIR="${HCS_KIBANA_IMAGE_DIR:-${HCS_KIBANA_IMAGE_DIR_DEFAULT}}"
+export HCS_KIBANA_CONTAINER_DIR="${HCS_KIBANA_CONTAINER_DIR:-docker/container/kibana}"
+export HCS_KIBANA_HOST="${HCS_KIBANA_HOST:-127.0.0.1}"
+export HCS_KIBANA_PORT="${HCS_KIBANA_PORT:-15601}"
+
+# OpenSearch
+export HCS_OSREST_IMAGE_DIR_DEFAULT="${HCS_OSREST_IMAGE_DIR_DEFAULT:-docker/image/_opensearch_default}"
+export HCS_OSREST_IMAGE_DIR="${HCS_OSREST_IMAGE_DIR:-${HCS_OSREST_IMAGE_DIR_DEFAULT}}"
+export HCS_OSREST_CONTAINER_DIR="${HCS_OSREST_CONTAINER_DIR:-docker/container/opensearch}"
+#export HCS_OSREST_UID="${HCS_OSREST_UID:-$(id -u)}"
+export HCS_OSREST_HOST="${HCS_OSREST_HOST:-127.0.0.1}"
+export HCS_OSREST_PORT="${HCS_OSREST_PORT:-19200}"
+export OSPERF_HOST="${OSPERF_HOST:-127.0.0.1}"
+export OSPERF_PORT="${OSPERF_PORT:-19600}"
+
+# OpenSearch Dashboards
+export HCS_OSDBS_IMAGE_DIR_DEFAULT="${HCS_OSDBS_IMAGE_DIR_DEFAULT:-docker/image/_opensearch-dashboards_default}"
+export HCS_OSDBS_IMAGE_DIR="${HCS_OSDBS_IMAGE_DIR:-${HCS_OSDBS_IMAGE_DIR_DEFAULT}}"
+#export HCS_OSDBS_CONTAINER_DIR="${HCS_OSDBS_CONTAINER_DIR:-docker/container/opensearch-dashboards}"
+export HCS_OSDBS_HOST="${HCS_OSDBS_HOST:-127.0.0.1}"
+export HCS_OSDBS_PORT="${HCS_OSDBS_PORT:-15601}"
+#
+
+# HAPI
+export HCS_HAPIRUN_IMAGE_DIR_DEFAULT="${HCS_HAPIRUN_IMAGE_DIR_DEFAULT:-docker/image/_hapi-run_default}"
+export HCS_HAPIRUN_IMAGE_DIR="${HCS_HAPIRUN_IMAGE_DIR:-${HCS_HAPIRUN_IMAGE_DIR_DEFAULT}}"
+# this directory will be mounted into the container
+export HCS_HAPIRUN_CONTAINER_DIR="${HCS_HAPIRUN_CONTAINER_DIR:-hapi-run}"
+#export HCS_HAPIRUN_UID="${HCS_HAPIRUN_UID:-$(id -u)}"
+# All Java options as a string as it would by typed on the command line
+export HCS_HAPIRUN_HOST="${HCS_HAPIRUN_HOST:-127.0.0.1}"
+export HCS_HAPIRUN_PORT="${HCS_HAPIRUN_PORT:-18080}"
+export HCS_HAPIRUN_JAR="${HCS_HAPIRUN_JAR:-ROOT.war}"
+export HCS_HAPIRUN_JAVA_OPTIONS="${HCS_HAPIRUN_JAVA_OPTION:-\
+  -Xmx4G \
+  -Dlogging.config=./config/logback-spring.xml}"
+export HCS_HAPIRUN_CONFIG_LOCATIONS="${HCS_HAPIRUN_CONFIG_LOCATIONS:-classpath:application.yaml,file:./config/}"  # see https://docs.spring.io/spring-boot/docs/2.7.8/reference/html/features.html#features.external-config.files
+#export HCS_HAPIRUN_ARGS="${HCS_HAPIRUN_ARGS:---debug --hapi.fhir.server_address=http://${HCS_HAPIRUN_HOST}:${HCS_HAPIRUN_PORT}/fhir}"
+#export HCS_HAPIRUN_ARGS="${HCS_HAPIRUN_ARGS:---debug --hapi.fhir.tester.home.server_address=http://${HCS_HAPIRUN_HOST}:${HCS_HAPIRUN_PORT}/fhir}"
+export HCS_HAPIRUN_ARGS="${HCS_HAPIRUN_ARGS:---debug --spring.profiles.active=pg,es}"
+export HCS_HAPIRUN_API_URL="${HCS_HAPIRUN_API_URL:-http://${HCS_HAPIRUN_HOST}:${HCS_HAPIRUN_PORT}/fhir}"
+
+export HCS_HAPIRUN_DEBUG_HOST="${HCS_HAPIRUN_DEBUG_HOST:-127.0.0.1}"
+export HCS_HAPIRUN_DEBUG_PORT="${HCS_HAPIRUN_DEBUG_PORT:-18081}"

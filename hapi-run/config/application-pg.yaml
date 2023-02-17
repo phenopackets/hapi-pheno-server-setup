@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: 'jdbc:postgresql://postgresql:5432/postgres'
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
