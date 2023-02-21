@@ -1,5 +1,0 @@
-#logging:
-#  level:
-#    root: DEBUG
-#    org.springframework.web: ERROR
-#    org.hibernate: ERROR

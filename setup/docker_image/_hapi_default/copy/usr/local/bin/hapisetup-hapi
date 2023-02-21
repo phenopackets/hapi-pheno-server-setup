@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -x
+set -e
+set -u
+set -o pipefail
+set -o noclobber
+shopt -s nullglob
+
+rm -rf target
+env | sort
+COMMAND="java ${HAPISETUP_HAPI_JAVA_OPTIONS} -Dspring.config.location=\"${HAPISETUP_HAPI_CONFIG_LOCATIONS}\" -jar ${HAPISETUP_HAPI_JAR} ${HAPISETUP_HAPI_ARGS}"
+sleep 15
+eval "$COMMAND"
+echo HAPI RAN!!!

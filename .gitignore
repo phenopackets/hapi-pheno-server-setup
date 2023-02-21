@@ -1,2 +1,2 @@
-/env-local
-/bin/.venv/
+.venv/
+/setup/docker_container/

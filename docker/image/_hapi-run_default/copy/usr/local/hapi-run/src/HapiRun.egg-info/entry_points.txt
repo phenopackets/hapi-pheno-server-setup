@@ -1,2 +1,0 @@
-[console_scripts]
-hapi-run = hapirun:hapi_run

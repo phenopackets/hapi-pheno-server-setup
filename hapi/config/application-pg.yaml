@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: 'jdbc:postgresql://${HAPISETUP_HAPI_DB_HOST}:${HAPISETUP_HAPI_DB_PORT}/${HAPISETUP_HAPI_DB_NAME}'
+    username: ${HAPISETUP_HAPI_DB_USER}
+    password: ${HAPISETUP_HAPI_DB_PASSWD}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect

@@ -18,17 +18,17 @@ HAPISETUP_HOME=$(realpath "${DIR}/..")
 cd "${HAPISETUP_HOME}"
 
 export HAPISETUP_HOME
-export HAPISETUP_VENV="${HAPISETUP_VENV:-"${HAPISETUP_HOME}/bin/.venv"}"
+export HAPISETUP_VENV="${HAPISETUP_VENV:-"${HAPISETUP_HOME}/setup/.venv"}"
 
 if [[ ! -d ${HAPISETUP_VENV} ]]; then
   python3 -m venv --copies "${HAPISETUP_VENV}"
+  . "${HAPISETUP_VENV}/bin/activate"
   pip install -U pip
-  pip install -e .
+  pip install -e "${HAPISETUP_HOME}/setup/cli"
+else
+  . "${HAPISETUP_VENV}/bin/activate"
 fi
 
-. "${HAPISETUP_VENV}/bin/activate"
-
-
-export HAPISETUP_TEST="ORIGINAL: hapi test env value"
+#export HAPISETUP_HAPI_ARGS="--debug --spring.profiles.active=pg,es,debug"
 
 hapisetup "$@"

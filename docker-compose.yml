@@ -1,95 +1,128 @@
 
 
 services:
-  setup:
-    build:
-      context: setup_image
-    profiles:
-      - setup
 
   postgresql:
 #    profiles:
 #      - disabled
     build:
-      context: ${HAPISETUP_PG_IMAGE_DIR}
+      context: ${HAPISETUP_PG_IMAGE_DIR:?err}
     environment:
-      - POSTGRES_PASSWORD=${HAPISETUP_PG_PASSWORD}
-    user: ${HAPISETUP_UID}:${HAPISETUP_GID}
+      - POSTGRES_PASSWORD=${HAPISETUP_PG_PASSWORD:?err}
+    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     ports:
       - target: 5432
-        published: ${HAPISETUP_PG_PORT}
-        host_ip: ${HAPISETUP_PG_HOST}
+        published: ${HAPISETUP_PG_PORT:?err}
+        host_ip: ${HAPISETUP_PG_HOST:?err}
     volumes:
       - type: bind
-        source: ${HAPISETUP_PG_CONTAINER_DIR}/data-volume
+        source: ${HAPISETUP_PG_CONTAINER_DIR:?err}/data-volume
         target: /var/lib/postgresql/data
 #      - type: bind
 #        source: /etc/passwd
 #        target: /etc/passwd
 #        read_only: true
 #
+
+  elasticsearch:
+    build:
+      context: ${HAPISETUP_ESREST_IMAGE_DIR:?err}
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx4g"  # https://www.elastic.co/guide/en/elasticsearch/reference/7.16/advanced-configuration.html
+      - bootstrap.memory_lock=true
+      - ELASTIC_PASSWORD=${HAPISETUP_ESREST_PASSWORD:?err}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+    ports:
+      - target: 9200
+        host_ip: ${HAPISETUP_ESREST_HOST:?err}
+        published: ${HAPISETUP_ESREST_PORT:?err}
+    healthcheck:
+      test: curl -u elastic:${HAPISETUP_ESREST_PASSWORD:?err} -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - type: bind
+        source: ${HAPISETUP_ESREST_CONTAINER_DIR:?err}/data-volume
+        target: /usr/share/elasticsearch/data
 #
-#  elasticsearch:
-#    build:
-#      context: ${HCS_ESREST_IMAGE_DIR}
-#    environment:
-#      - discovery.type=single-node
-#      - xpack.security.enabled=true
-#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#      - bootstrap.memory_lock=true
-#      - ELASTIC_PASSWORD=changeme
-#    ulimits:
-#      memlock:
-#        soft: -1
-#        hard: -1
-#    user: ${HCS_UID}:${HCS_GID}
-#    ports:
-#      - target: 9200
-#        host_ip: ${HCS_ESREST_HOST}
-#        published: ${HCS_ESREST_PORT}
-#    volumes:
-#      - type: bind
-#        source: ${HCS_ESREST_CONTAINER_DIR}/data-volume
-#        target: /usr/share/elasticsearch/data
+  kibana:
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    build:
+      context: ${HAPISETUP_KIBANA_IMAGE_DIR:?err}
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=true
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${HAPISETUP_KIBANA_PASSWORD:?err}
+    ports:
+      - target: 5601
+        host_ip: ${HAPISETUP_KIBANA_HOST:?err}
+        published: ${HAPISETUP_KIBANA_PORT:?err}
+
+
+  hapi:
+#    profiles:
+#      - disabled
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+    build:
+      context: ${HAPISETUP_HAPI_IMAGE_DIR:?err}
+    environment:
+      - HAPISETUP_HAPI_JAVA_OPTIONS
+      - HAPISETUP_HAPI_JAR
+      - HAPISETUP_HAPI_ARGS
+      - HAPISETUP_HAPI_CONFIG_LOCATIONS
+    ports:
+      - target: 8080
+        host_ip: ${HAPISETUP_HAPI_HOST:?err}
+        published: ${HAPISETUP_HAPI_PORT:?err}
+    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+    volumes:
+      - type: bind
+        source: ${HAPISETUP_HAPI_CONTAINER_DIR:?err}
+        target: /hapi-run
 #
-#  kibana:
-#    depends_on:
-#      - elasticsearch
-#    build:
-#      context: ${HCS_KIBANA_IMAGE_DIR}
-#    environment:
-#      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-#      - xpack.security.enabled=true
-#      - ELASTICSEARCH_USERNAME=elastic
-#      - ELASTICSEARCH_PASSWORD=changeme
-#    ports:
-#      - target: 5601
-#        host_ip: ${HCS_KIBANA_HOST}
-#        published: ${HCS_KIBANA_PORT}
-#
-#
+
+
 #  opensearch:
 #    profiles:
 #      - disabled
 #    build:
-#      context: ${HCS_OSREST_IMAGE_DIR}
+#      context: ${HAPISETUP_OSREST_IMAGE_DIR:?err}
 #    environment:
 #      # https://github.com/opensearch-project/OpenSearch/issues/1598#issuecomment-978189603
 #      # https://github.com/opensearch-project/opensearch-build/blob/main/docker/release/README.md#scenario-2-no-demo-certsconfigs--disable-security-on-both-opensearch-and-opensearch-dashboards
 #      - discovery.type=single-node
 #      - DISABLE_SECURITY_PLUGIN=true
 #      - DISABLE_INSTALL_DEMO_CONFIG=true
-#    user: ${HCS_UID}:${HCS_GID}
+#    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
 #    ports:
 #      - target: 9200
-#        host_ip: ${HCS_OSREST_HOST}
-#        published: ${HCS_OSREST_PORT}
+#        host_ip: ${HAPISETUP_OSREST_HOST:?err}
+#        published: ${HAPISETUP_OSREST_PORT:?err}
 #      - target: 9600
-#        host_ip: ${OSPERF_HOST}
-#        published: ${OSPERF_PORT}
+#        host_ip: ${OSPERF_HOST:?err}
+#        published: ${OSPERF_PORT:?err}
 #    volumes:
 #      - type: bind
-#        source: ${HCS_OSREST_CONTAINER_DIR}/data-volume
+#        source: ${HAPISETUP_OSREST_CONTAINER_DIR:?err}/data-volume
 #        target: /usr/share/opensearch/data
 ##
 #  opensearch-dashboards:
@@ -98,35 +131,12 @@ services:
 #    depends_on:
 #      - opensearch
 #    build:
-#      context: ${HCS_OSDBS_IMAGE_DIR}
+#      context: ${HAPISETUP_OSDBS_IMAGE_DIR:?err}
 #    environment:
 #      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
 #      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
 #    ports:
 #      - target: 5601
-#        host_ip: ${HCS_OSDBS_HOST}
-#        published: ${HCS_OSDBS_PORT}
-##
-#  hapi-run:
-##    profiles:
-##      - disabled
-#    depends_on:
-#      - elasticsearch
-#      - postgresql
-#    build:
-#      context: ${HCS_HAPIRUN_IMAGE_DIR}
-#    environment:
-#      - HCS_HAPIRUN_JAR
-#      - HCS_HAPIRUN_JAVA_OPTIONS
-#      - HCS_HAPIRUN_ARGS
-#      - HCS_HAPIRUN_CONFIG_LOCATIONS
-#    ports:
-#      - target: 8080
-#        host_ip: ${HCS_HAPIRUN_HOST}
-#        published: ${HCS_HAPIRUN_PORT}
-#    user: ${HCS_UID}:${HCS_GID}
-#    volumes:
-#      - type: bind
-#        source: ${HCS_HAPIRUN_CONTAINER_DIR}
-#        target: /hapi-run
+#        host_ip: ${HAPISETUP_OSDBS_HOST:?err}
+#        published: ${HAPISETUP_OSDBS_PORT:?err}
 ##

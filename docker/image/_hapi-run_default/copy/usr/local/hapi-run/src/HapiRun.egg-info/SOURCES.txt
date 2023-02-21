@@ -1,8 +1,0 @@
-pyproject.toml
-src/HapiRun.egg-info/PKG-INFO
-src/HapiRun.egg-info/SOURCES.txt
-src/HapiRun.egg-info/dependency_links.txt
-src/HapiRun.egg-info/entry_points.txt
-src/HapiRun.egg-info/requires.txt
-src/HapiRun.egg-info/top_level.txt
-src/hapirun/__init__.py
