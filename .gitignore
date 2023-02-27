@@ -1,2 +1,6 @@
 .venv/
 /setup/docker_container/
+/setup/cli/src/hapisetup.egg-info/
+
+*.pyc
+/setup/cli/src/hapisetup/__pycache__/
