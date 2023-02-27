@@ -1,6 +1,5 @@
-import os
 import click
-from . import docker_compose, load_env, run_subprocess
+from . import docker_compose, load_env
 
 
 @click.group()

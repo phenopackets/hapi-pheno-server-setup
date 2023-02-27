@@ -4,3 +4,5 @@
 /logs/
 /.m2/
 /hapi-cli/
+/ROOT.war.build-path.txt
+/ROOT.war.build-path-history.txt

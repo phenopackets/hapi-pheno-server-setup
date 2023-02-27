@@ -1,3 +1,0 @@
-/hapi-build/_builds/https___github.com_hapifhir_hapi-fhir-jpaserver-starter.git/20230227_1602_tags_image_v6.4.0-0-g9cabe35_ROOT.war
-/hapi-build/_builds/https___github.com_hapifhir_hapi-fhir-jpaserver-starter.git/20230227_1746_tags_image_v6.4.0-0-g9cabe35_ROOT.war
-/hapi-build/_builds/https___github.com_hapifhir_hapi-fhir-jpaserver-starter.git/20230227_1746_tags_image_v6.4.0-0-g9cabe35_ROOT.war
