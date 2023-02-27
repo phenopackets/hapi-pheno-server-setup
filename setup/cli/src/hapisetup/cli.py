@@ -3,13 +3,13 @@ import click
 from . import docker_compose, load_env, run_subprocess
 
 
-@click.group(invoke_without_command=True)
+@click.group()
 # @click.option('--profiles', envvar='HAPISETUP_PROFILES')
 def hapisetup(**kwargs):
     load_env()
 
-    for name, value in sorted(os.environ.items()):
-        print("   " + name + "=" + value)
+    # for name, value in sorted(os.environ.items()):
+    #     print("   " + name + "=" + value)
 
 
 # @hapisetup.command()

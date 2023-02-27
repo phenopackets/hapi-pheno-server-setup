@@ -27,8 +27,7 @@ echo " ===================== Building HAPI ============= "
 
 # If we have a "direct URL" we download it and save it
 
-B_TIMESTAMP=$(date +%y.%m.%d_%H.%M)
-B_BINARY=
+B_TIMESTAMP=$(date +%Y%m%d_%H%M)
 
 B_FROM_SOURCE=false
 B_SOURCE_DIR=
@@ -71,6 +70,7 @@ if [[ ${B_FROM_SOURCE} == true ]]; then
   if [[ $(git status --porcelain) ]]; then
     # We have dirty or untracked files. Use a stash to find hashes.
     git stash push -u
+    # shellcheck disable=SC1083
     B_BINARY_NAME="${B_BINARY_NAME}_$(git rev-parse --short stash^{tree})_$(git rev-parse --short stash^3^{tree})"
     git stash pop 0
   fi
@@ -103,13 +103,20 @@ if [[ ${B_FROM_SOURCE} == true ]]; then
   fi
 
   if [[ ${B_EXISTING} ]]; then
-
-    echo ============== EXISTING ${B_EXISTING}
+    B_ROOTWAR="/hapi-build/_builds/${B_BINARY_DIR}/${B_EXISTING}"
   else
     eval "${HAPISETUP_HAPI_BUILD_CMD} -Dmaven.repo.local=/hapi-build/.m2"
     mkdir -p "/hapi-build/_builds/${B_BINARY_DIR}"
     cp -a "target/${B_FINAL_NAME}.${B_FINAL_EXT}" "/hapi-build/_builds/${B_BINARY_DIR}/${B_TIMESTAMP}_${B_BINARY_NAME}"
+    B_ROOTWAR="/hapi-build/_builds/${B_BINARY_DIR}/${B_TIMESTAMP}_${B_BINARY_NAME}"
   fi
+
+fi
+
+if [[ ! -f /hapi/ROOT.war.build-path.txt || ${B_ROOTWAR} != $(cat /hapi/ROOT.war.build-path.txt) ]]; then
+  cp -a "${B_ROOTWAR}" "/hapi/ROOT.war"
+  echo "${B_ROOTWAR}" >> "/hapi/ROOT.war.build-path-history.txt"
+  echo "${B_ROOTWAR}" >| "/hapi/ROOT.war.build-path.txt"
 fi
 
 #https://oss.sonatype.org/content/repositories/snapshots/com/essaid/fhir/com.essaid.fhir.hapi-extensions/0.1.2-SNAPSHOT/com.essaid.fhir.hapi-extensions-SNAPSHOT.jar
