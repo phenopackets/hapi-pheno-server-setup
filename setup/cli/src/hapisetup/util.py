@@ -2,13 +2,13 @@ import os
 from os import environ
 import subprocess
 from pathlib import Path
-from typing import Mapping
+from typing import Mapping, List
 
 
 # hapisetup_globals: dict = {}
 
 
-def run_subprocess(command: list[str], evn: Mapping):
+def run_subprocess(command: List[str], evn: Mapping):
     return subprocess.run(command, env=evn)
 
 def load_env():
@@ -28,7 +28,7 @@ def load_env():
             exec(open(f'config/env-{profile}.py').read())
 
 
-def docker_compose(args: list[str]):
+def docker_compose(args: List[str]):
     compose = ['docker', 'compose']
     for profile in environ['HAPISETUP_PROFILES'].split(','):
         compose.extend(['--profile', profile])

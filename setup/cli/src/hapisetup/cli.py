@@ -1,5 +1,6 @@
 import click
 from . import docker_compose, load_env
+from typing import List
 
 
 @click.group()
@@ -22,7 +23,7 @@ def hapisetup(**kwargs):
 
 @hapisetup.group(context_settings={"ignore_unknown_options": True}, invoke_without_command=True)
 @click.argument('params', nargs=-1)
-def compose(params: list[str]):
+def compose(params: List[str]):
     docker_compose(params)
 
 
