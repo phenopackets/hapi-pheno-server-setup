@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -x
+set -e
+set -u
+set -o pipefail
+set -o noclobber
+shopt -s nullglob
+
+hapisetup-hapi-cli-install
+
+export FHIR_API_BASE=http://127.0.0.1:8080/fhir
+
+WAIT=0
+while true; do
+  if ! curl --header "Content-Type: application/fhir+json" -f -L "${FHIR_API_BASE}/metadata" >/dev/null 2>&1; then
+
+    if ((WAIT > 300)); then
+      echo "Server is not up at ${FHIR_API_BASE}, exiting 1."
+      exit 1
+    fi
+
+    echo "Waiting 5 seconds on ${FHIR_API_BASE} to start..."
+    sleep 5
+    WAIT=$((WAIT + 5))
+  else
+    break 2
+  fi
+done
+
+export HAPI_CLI="$(pwd)/hapi-cli/v${HAPISETUP_HAPI_VERSION}/hapi-fhir-cli"
+
+cd loaders
+unzip -o "*.zip"
+
+for d in $(find "$(pwd)" -mindepth 1 -maxdepth 1 -type d | sort); do
+  #for d in "${TTS_HOME}/loaders"/*; do
+  if [[ -d $d ]]; then
+    if [[ $d == *.off ]]; then
+      echo skipping loader: "$d"
+      continue
+    fi
+
+    if [ -f "${d}/load.sh" ]; then
+      echo loading: "$d"
+      chmod u+x "${d}/load.sh"
+      "${d}/load.sh"
+    fi
+  fi
+done
+
+echo "=================== FINISHED LOADERS ========================="
+

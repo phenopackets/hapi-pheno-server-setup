@@ -1,3 +1,6 @@
 *.war
 *.jar
 /target
+/logs/
+/.m2/
+/hapi-cli/

@@ -2,14 +2,22 @@ import os
 from os import environ
 import subprocess
 from pathlib import Path
+from typing import Mapping
 
+
+# hapisetup_globals: dict = {}
+
+
+def run_subprocess(command: list[str], evn: Mapping):
+    return subprocess.run(command, env=evn)
 
 def load_env():
     # load the env stub file to find any more profiles to load
     exec(open(str(Path('config/env.py'))).read())
 
     # load any profiles
-    clean_prfiles = list(filter(None, [profile.strip() for profile in environ.get('HAPISETUP_PROFILES').split(',')]))
+    clean_prfiles = list(filter(None, [profile.strip() for profile in environ['HAPISETUP_PROFILES'].split(',')]))
+    # hapisetup_globals['CLEAN_PROFILES'] = clean_prfiles
     environ['HAPISETUP_PROFILES'] = ','.join(clean_prfiles)
     print(f"PROFILES: {environ['HAPISETUP_PROFILES']}")
     for profile in clean_prfiles:
@@ -22,5 +30,8 @@ def load_env():
 
 def docker_compose(args: list[str]):
     compose = ['docker', 'compose']
+    for profile in environ['HAPISETUP_PROFILES'].split(','):
+        compose.extend(['--profile', profile])
     compose.extend(args)
-    return subprocess.run(compose, env=os.environ)
+    print(f'Running: {compose}')
+    return run_subprocess(compose, os.environ)

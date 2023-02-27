@@ -7,6 +7,7 @@ services:
 #      - disabled
     build:
       context: ${HAPISETUP_PG_IMAGE_DIR:?err}
+    stop_grace_period: 5m
     environment:
       - POSTGRES_PASSWORD=${HAPISETUP_PG_PASSWORD:?err}
     user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
@@ -32,6 +33,7 @@ services:
   elasticsearch:
     build:
       context: ${HAPISETUP_ESREST_IMAGE_DIR:?err}
+    stop_grace_period: 5m
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
@@ -61,6 +63,7 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    stop_grace_period: 5m
     build:
       context: ${HAPISETUP_KIBANA_IMAGE_DIR:?err}
     environment:
@@ -73,6 +76,28 @@ services:
         host_ip: ${HAPISETUP_KIBANA_HOST:?err}
         published: ${HAPISETUP_KIBANA_PORT:?err}
 
+  hapi-build:
+    build:
+      context: ${HAPISETUP_HAPI_BUILD_IMAGE_DIR:?err}
+    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+    environment:
+      - HAPISETUP_HAPI_BUILD_CMD
+      - HAPISETUP_HAPI_BUILD_TYPE
+      - HAPISETUP_HAPI_BUILD_GIT_REPO
+      - HAPISETUP_HAPI_BUILD_GIT_REF
+#      - HAPISETUP_HAPIBUILD # if a build should be done
+#      - HAPISETUP_HAPIBUILD_FROM  # the path/repo to build from
+#      - HAPISETUP_HAPIBUILD_REF  # if we're using a git ref, set it here
+#      - HAPISETUP_HAPIBUILD_CMD  # the maven command to build the artifact
+#      - HAPISETUP_HAPIBUILD_JARNAME  # the name to copy the Jar to
+    volumes:
+      - type: bind
+        source: ${HAPISETUP_HAPI_BUILD_VOLUME:?err}
+        target: /hapi-build
+      - type: bind
+        source: ${HAPISETUP_HAPI_CONTAINER_DIR:?err}
+        target: /hapi
+
 
   hapi:
 #    profiles:
@@ -82,13 +107,25 @@ services:
         condition: service_healthy
       postgresql:
         condition: service_healthy
+      hapi-build:
+        condition: service_completed_successfully
+    stop_grace_period: 5m
     build:
       context: ${HAPISETUP_HAPI_IMAGE_DIR:?err}
     environment:
       - HAPISETUP_HAPI_JAVA_OPTIONS
       - HAPISETUP_HAPI_JAR
       - HAPISETUP_HAPI_ARGS
-      - HAPISETUP_HAPI_CONFIG_LOCATIONS
+      - HAPISETUP_HAPI_VERSION
+      - HAPISETUP_HAPI_DB_HOST
+      - HAPISETUP_HAPI_DB_PORT
+      - HAPISETUP_HAPI_DB_NAME
+      - HAPISETUP_HAPI_DB_USER
+      - HAPISETUP_HAPI_DB_PASSWD
+      - HAPISETUP_HAPI_ES_HOST
+      - HAPISETUP_HAPI_ES_PORT
+      - HAPISETUP_HAPI_ES_USER
+      - HAPISETUP_HAPI_ES_PASSWD
     ports:
       - target: 8080
         host_ip: ${HAPISETUP_HAPI_HOST:?err}
@@ -97,7 +134,7 @@ services:
     volumes:
       - type: bind
         source: ${HAPISETUP_HAPI_CONTAINER_DIR:?err}
-        target: /hapi-run
+        target: /hapi
 #
 
 

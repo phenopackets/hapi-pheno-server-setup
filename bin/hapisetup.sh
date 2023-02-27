@@ -29,6 +29,24 @@ else
   . "${HAPISETUP_VENV}/bin/activate"
 fi
 
-#export HAPISETUP_HAPI_ARGS="--debug --spring.profiles.active=pg,es,debug"
+SKIP=
+for arg in "$@"; do
+  shift
+  echo "Processing $arg"
+  case "$arg" in
+  --hapisetup-profiles|--hs-profiles)
+    HAPISETUP_PROFILES="$1"
+    SKIP=yes
+    export HAPISETUP_PROFILES
+    ;;
+  *)
+    if [[ $SKIP == yes ]]; then
+      SKIP=
+      continue
+    fi
+    set -- "$@" "$arg"
+    ;;
+  esac
+done
 
 hapisetup "$@"
