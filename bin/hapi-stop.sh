@@ -15,4 +15,4 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-"${DIR}/hapisetup.sh" compose down
+"${DIR}/hapi.sh"  compose down

@@ -8,6 +8,6 @@ shopt -s nullglob
 
 rm -rf target
 env | sort
-eval " exec java ${HAPISETUP_HAPI_JAVA_OPTIONS} -jar ${HAPISETUP_HAPI_JAR} ${HAPISETUP_HAPI_ARGS}"
+eval " exec java ${HS_HAPI_JAVA_OPTIONS} -jar ${HS_HAPI_JAR} ${HS_HAPI_ARGS}"
 
 

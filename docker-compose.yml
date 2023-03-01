@@ -6,11 +6,11 @@ services:
 #    profiles:
 #      - disabled
     build:
-      context: ${HAPISETUP_PG_IMAGE_DIR:?err}
+      context: ${HS_PG_IMAGE_DIR:?err}
     stop_grace_period: 5m
     environment:
-      - POSTGRES_PASSWORD=${HAPISETUP_PG_PASSWORD:?err}
-    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+      - POSTGRES_PASSWORD=${HS_PG_PASSWORD:?err}
+    user: ${HS_UID:?err}:${HS_GID:?err}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -18,11 +18,11 @@ services:
       retries: 10
     ports:
       - target: 5432
-        published: ${HAPISETUP_PG_PORT:?err}
-        host_ip: ${HAPISETUP_PG_HOST:?err}
+        published: ${HS_PG_PORT:?err}
+        host_ip: ${HS_PG_HOST:?err}
     volumes:
       - type: bind
-        source: ${HAPISETUP_PG_CONTAINER_DIR:?err}/data-volume
+        source: ${HS_PG_CONTAINER_DIR:?err}/data-volume
         target: /var/lib/postgresql/data
 #      - type: bind
 #        source: /etc/passwd
@@ -32,31 +32,31 @@ services:
 
   elasticsearch:
     build:
-      context: ${HAPISETUP_ESREST_IMAGE_DIR:?err}
+      context: ${HS_ESREST_IMAGE_DIR:?err}
     stop_grace_period: 5m
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx4g"  # https://www.elastic.co/guide/en/elasticsearch/reference/7.16/advanced-configuration.html
       - bootstrap.memory_lock=true
-      - ELASTIC_PASSWORD=${HAPISETUP_ESREST_PASSWORD:?err}
+      - ELASTIC_PASSWORD=${HS_ESREST_PASSWORD:?err}
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+    user: ${HS_UID:?err} #:${HS_GID:?err} to deal with keystore permissins when UID is not 1000. See: https://www.elastic.co/guide/en/elasticsearch/reference/7.13/docker.html#_configuration_files_must_be_readable_by_the_elasticsearch_user
     ports:
       - target: 9200
-        host_ip: ${HAPISETUP_ESREST_HOST:?err}
-        published: ${HAPISETUP_ESREST_PORT:?err}
+        host_ip: ${HS_ESREST_HOST:?err}
+        published: ${HS_ESREST_PORT:?err}
     healthcheck:
-      test: curl -u elastic:${HAPISETUP_ESREST_PASSWORD:?err} -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+      test: curl -u elastic:${HS_ESREST_PASSWORD:?err} -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
       interval: 10s
       timeout: 10s
       retries: 10
     volumes:
       - type: bind
-        source: ${HAPISETUP_ESREST_CONTAINER_DIR:?err}/data-volume
+        source: ${HS_ESREST_CONTAINER_DIR:?err}/data-volume
         target: /usr/share/elasticsearch/data
 #
   kibana:
@@ -65,37 +65,37 @@ services:
         condition: service_healthy
     stop_grace_period: 5m
     build:
-      context: ${HAPISETUP_KIBANA_IMAGE_DIR:?err}
+      context: ${HS_KIBANA_IMAGE_DIR:?err}
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - xpack.security.enabled=true
       - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=${HAPISETUP_KIBANA_PASSWORD:?err}
+      - ELASTICSEARCH_PASSWORD=${HS_KIBANA_PASSWORD:?err}
     ports:
       - target: 5601
-        host_ip: ${HAPISETUP_KIBANA_HOST:?err}
-        published: ${HAPISETUP_KIBANA_PORT:?err}
+        host_ip: ${HS_KIBANA_HOST:?err}
+        published: ${HS_KIBANA_PORT:?err}
 
   hapi-build:
     build:
-      context: ${HAPISETUP_HAPI_BUILD_IMAGE_DIR:?err}
-    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+      context: ${HS_HAPI_BUILD_IMAGE_DIR:?err}
+    user: ${HS_UID:?err}:${HS_GID:?err}
     environment:
-      - HAPISETUP_HAPI_BUILD_CMD
-      - HAPISETUP_HAPI_BUILD_TYPE
-      - HAPISETUP_HAPI_BUILD_GIT_REPO
-      - HAPISETUP_HAPI_BUILD_GIT_REF
-#      - HAPISETUP_HAPIBUILD # if a build should be done
-#      - HAPISETUP_HAPIBUILD_FROM  # the path/repo to build from
-#      - HAPISETUP_HAPIBUILD_REF  # if we're using a git ref, set it here
-#      - HAPISETUP_HAPIBUILD_CMD  # the maven command to build the artifact
-#      - HAPISETUP_HAPIBUILD_JARNAME  # the name to copy the Jar to
+      - HS_HAPI_BUILD_CMD
+      - HS_HAPI_BUILD_TYPE
+      - HS_HAPI_BUILD_GIT_REPO
+      - HS_HAPI_BUILD_GIT_REF
+#      - HS_HAPIBUILD # if a build should be done
+#      - HS_HAPIBUILD_FROM  # the path/repo to build from
+#      - HS_HAPIBUILD_REF  # if we're using a git ref, set it here
+#      - HS_HAPIBUILD_CMD  # the maven command to build the artifact
+#      - HS_HAPIBUILD_JARNAME  # the name to copy the Jar to
     volumes:
       - type: bind
-        source: ${HAPISETUP_HAPI_BUILD_VOLUME:?err}
+        source: ${HS_HAPI_BUILD_VOLUME:?err}
         target: /hapi-build
       - type: bind
-        source: ${HAPISETUP_HAPI_CONTAINER_DIR:?err}
+        source: ${HS_HAPI_CONTAINER_DIR:?err}
         target: /hapi
 
 
@@ -111,29 +111,31 @@ services:
         condition: service_completed_successfully
     stop_grace_period: 5m
     build:
-      context: ${HAPISETUP_HAPI_IMAGE_DIR:?err}
+      context: ${HS_HAPI_IMAGE_DIR:?err}
     environment:
-      - HAPISETUP_HAPI_JAVA_OPTIONS
-      - HAPISETUP_HAPI_JAR
-      - HAPISETUP_HAPI_ARGS
-      - HAPISETUP_HAPI_VERSION
-      - HAPISETUP_HAPI_DB_HOST
-      - HAPISETUP_HAPI_DB_PORT
-      - HAPISETUP_HAPI_DB_NAME
-      - HAPISETUP_HAPI_DB_USER
-      - HAPISETUP_HAPI_DB_PASSWD
-      - HAPISETUP_HAPI_ES_HOST
-      - HAPISETUP_HAPI_ES_PORT
-      - HAPISETUP_HAPI_ES_USER
-      - HAPISETUP_HAPI_ES_PASSWD
+      - HS_HAPI_JAVA_OPTIONS
+      - HS_HAPI_JAR
+      - HS_HAPI_ARGS
+      - HS_HAPI_VERSION
+      - HS_HAPI_DB_HOST
+      - HS_HAPI_DB_PORT
+      - HS_HAPI_DB_NAME
+      - HS_HAPI_DB_USER
+      - HS_HAPI_DB_PASSWD
+      - HS_HAPI_ES_HOST
+      - HS_HAPI_ES_PORT
+      - HS_HAPI_ES_USER
+      - HS_HAPI_ES_PASSWD
+      - HS_HAPI_PORT
+      - HS_HAPI_API_URL
     ports:
-      - target: 8080
-        host_ip: ${HAPISETUP_HAPI_HOST:?err}
-        published: ${HAPISETUP_HAPI_PORT:?err}
-    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+      - target: ${HS_HAPI_PORT:?err}
+        host_ip: ${HS_HAPI_HOST:?err}
+        published: ${HS_HAPI_PORT:?err}
+    user: ${HS_UID:?err}:${HS_GID:?err}
     volumes:
       - type: bind
-        source: ${HAPISETUP_HAPI_CONTAINER_DIR:?err}
+        source: ${HS_HAPI_CONTAINER_DIR:?err}
         target: /hapi
 #
 
@@ -142,24 +144,24 @@ services:
 #    profiles:
 #      - disabled
 #    build:
-#      context: ${HAPISETUP_OSREST_IMAGE_DIR:?err}
+#      context: ${HS_OSREST_IMAGE_DIR:?err}
 #    environment:
 #      # https://github.com/opensearch-project/OpenSearch/issues/1598#issuecomment-978189603
 #      # https://github.com/opensearch-project/opensearch-build/blob/main/docker/release/README.md#scenario-2-no-demo-certsconfigs--disable-security-on-both-opensearch-and-opensearch-dashboards
 #      - discovery.type=single-node
 #      - DISABLE_SECURITY_PLUGIN=true
 #      - DISABLE_INSTALL_DEMO_CONFIG=true
-#    user: ${HAPISETUP_UID:?err}:${HAPISETUP_GID:?err}
+#    user: ${HS_UID:?err}:${HS_GID:?err}
 #    ports:
 #      - target: 9200
-#        host_ip: ${HAPISETUP_OSREST_HOST:?err}
-#        published: ${HAPISETUP_OSREST_PORT:?err}
+#        host_ip: ${HS_OSREST_HOST:?err}
+#        published: ${HS_OSREST_PORT:?err}
 #      - target: 9600
 #        host_ip: ${OSPERF_HOST:?err}
 #        published: ${OSPERF_PORT:?err}
 #    volumes:
 #      - type: bind
-#        source: ${HAPISETUP_OSREST_CONTAINER_DIR:?err}/data-volume
+#        source: ${HS_OSREST_CONTAINER_DIR:?err}/data-volume
 #        target: /usr/share/opensearch/data
 ##
 #  opensearch-dashboards:
@@ -168,12 +170,12 @@ services:
 #    depends_on:
 #      - opensearch
 #    build:
-#      context: ${HAPISETUP_OSDBS_IMAGE_DIR:?err}
+#      context: ${HS_OSDBS_IMAGE_DIR:?err}
 #    environment:
 #      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
 #      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
 #    ports:
 #      - target: 5601
-#        host_ip: ${HAPISETUP_OSDBS_HOST:?err}
-#        published: ${HAPISETUP_OSDBS_PORT:?err}
+#        host_ip: ${HS_OSDBS_HOST:?err}
+#        published: ${HS_OSDBS_PORT:?err}
 ##

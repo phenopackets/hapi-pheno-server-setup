@@ -5,32 +5,28 @@ from pathlib import Path
 from typing import Mapping, List
 
 
-# hapisetup_globals: dict = {}
-
-
 def run_subprocess(command: List[str], evn: Mapping):
     return subprocess.run(command, env=evn)
 
-def load_env():
-    # load the env stub file to find any more profiles to load
-    exec(open(str(Path('config/env.py'))).read())
 
-    # load any profiles
-    clean_prfiles = list(filter(None, [profile.strip() for profile in environ['HAPISETUP_PROFILES'].split(',')]))
-    # hapisetup_globals['CLEAN_PROFILES'] = clean_prfiles
-    environ['HAPISETUP_PROFILES'] = ','.join(clean_prfiles)
-    print(f"PROFILES: {environ['HAPISETUP_PROFILES']}")
-    for profile in clean_prfiles:
-        profile_path = Path(f'config/env-{profile}.py').absolute()
-        print(f'Attempting to load profile: {profile_path}')
-        if profile_path.exists():
-            print(f'Loading profile: {profile}')
-            exec(open(f'config/env-{profile}.py').read())
+def init_env():
+    exec(open(f'config/env-init.py').read())
+
+
+def load_env():
+    for env in os.environ['HS_PROFILES'].split(','):
+        if not env:
+            continue
+        env_path = Path(f'config/{env}.py').absolute()
+        print(f'Attempting to load environment file: {env_path}')
+        if env_path.exists():
+            print(f'Loading environment file: {env}')
+            exec(open(f'config/{env}.py').read())
 
 
 def docker_compose(args: List[str]):
     compose = ['docker', 'compose']
-    for profile in environ['HAPISETUP_PROFILES'].split(','):
+    for profile in environ['HS_PROFILES'].split(','):
         compose.extend(['--profile', profile])
     compose.extend(args)
     print(f'Running: {compose}')

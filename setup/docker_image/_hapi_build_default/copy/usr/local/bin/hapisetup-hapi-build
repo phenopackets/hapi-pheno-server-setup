@@ -6,54 +6,31 @@ set -o pipefail
 set -o noclobber
 shopt -s nullglob
 
-echo " ===================== Building HAPI ============= "
-
-#git config --global --add safe.directory "*"
-
-# We either download a built binary or try to build one. We prefer built ones over source code
-# unless the volume itself appears to be a source repository (for dev environment).
-# Regardless, a binary is placed under /hapi/hapi-downloaded if it is a binary download or
-# /hapi/hapi-built if it was built.
-#
-
-# The binary name/path is as follows:
-# For a direct download URL, if there is no given name, the name is the last 200 characters of the URL.
-# For Maven coordinates, it is the last 200 characters of the path withing the repository. The repository
-# becomes a directory. So, /hapi/hapi-downloaded/repo/artifact
-# For built binaries, the URL of the "origin" remote becomes a directory and the binary name is built from the
-# ref being built. If the working directory is dirty, "-dev" is appended to the name.
-
-# is /hapi-buid a git repo? If yes, we built
-
-# If we have a "direct URL" we download it and save it
 
 B_TIMESTAMP=$(date +%Y%m%d_%H%M)
-
 B_FROM_SOURCE=false
 B_SOURCE_DIR=
-
 B_BINARY_NAME=
 B_BINARY_DIR=
-
 B_FILE_CHARS="^-0-9a-zA-Z_."
 
 # If we have a source directory mounted as the volume, we built it and use the final artifact as the binary
 # We set the BUILD_DIR to the root of the volume and build later, if we're using a build approach.
 
-if [[ $(git rev-parse --is-inside-work-tree) == true || ${HAPISETUP_HAPI_BUILD_TYPE} == git ]]; then
+if [[ $(git rev-parse --is-inside-work-tree) == true || ${HS_HAPI_BUILD_TYPE} == git ]]; then
   if [[ $(git rev-parse --is-inside-work-tree) == true ]]; then
     B_FROM_SOURCE=true
     B_SOURCE_DIR=$(pwd)
   else
     B_FROM_SOURCE=true
-    B_SOURCE_DIR="${HAPISETUP_HAPI_BUILD_GIT_REPO//[${B_FILE_CHARS}]/_}"
+    B_SOURCE_DIR="${HS_HAPI_BUILD_GIT_REPO//[${B_FILE_CHARS}]/_}"
     if [[ -d ${B_SOURCE_DIR} ]]; then
       cd "${B_SOURCE_DIR}"
       git fetch --all --tags
-      git reset --hard "${HAPISETUP_HAPI_BUILD_GIT_REF}"
+      git reset --hard "${HS_HAPI_BUILD_GIT_REF}"
       git clean -xdfq
     else
-      git clone --branch "${HAPISETUP_HAPI_BUILD_GIT_REF}" "${HAPISETUP_HAPI_BUILD_GIT_REPO}" "${B_SOURCE_DIR}"
+      git clone --branch "${HS_HAPI_BUILD_GIT_REF}" "${HS_HAPI_BUILD_GIT_REPO}" "${B_SOURCE_DIR}"
       cd "${B_SOURCE_DIR}"
     fi
   fi
@@ -105,7 +82,7 @@ if [[ ${B_FROM_SOURCE} == true ]]; then
   if [[ ${B_EXISTING} ]]; then
     B_ROOTWAR="/hapi-build/_builds/${B_BINARY_DIR}/${B_EXISTING}"
   else
-    eval "${HAPISETUP_HAPI_BUILD_CMD} -Dmaven.repo.local=/hapi-build/.m2"
+    eval "${HS_HAPI_BUILD_CMD} -Dmaven.repo.local=/hapi-build/.m2"
     mkdir -p "/hapi-build/_builds/${B_BINARY_DIR}"
     cp -a "target/${B_FINAL_NAME}.${B_FINAL_EXT}" "/hapi-build/_builds/${B_BINARY_DIR}/${B_TIMESTAMP}_${B_BINARY_NAME}"
     B_ROOTWAR="/hapi-build/_builds/${B_BINARY_DIR}/${B_TIMESTAMP}_${B_BINARY_NAME}"

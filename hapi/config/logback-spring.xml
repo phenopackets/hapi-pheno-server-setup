@@ -49,7 +49,7 @@
     </root>
 
 
-    <springProfile name="debug">
+    <springProfile name="hs-debug">
         <!--        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
         <!--&lt;!&ndash;            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">&ndash;&gt;-->
         <!--&lt;!&ndash;                &lt;!&ndash;			<level>INFO</level>&ndash;&gt;&ndash;&gt;-->

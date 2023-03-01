@@ -27,7 +27,8 @@ while true; do
   fi
 done
 
-export HAPI_CLI="$(pwd)/hapi-cli/v${HAPISETUP_HAPI_VERSION}/hapi-fhir-cli"
+HAPI_CLI="$(pwd)/hapi-cli/v${HS_HAPI_VERSION}/hapi-fhir-cli"
+export  HAPI_CLI
 
 cd loaders
 unzip -o "*.zip"

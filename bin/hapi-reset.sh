@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -x
 set -e
 set -u
 set -o pipefail
@@ -15,4 +15,9 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-"${DIR}/hapi.sh" compose up --build
+
+${DIR}/hapi-stop.sh
+rm -rf "${DIR}/../setup/docker_container/elasticsearch"
+rm -rf "${DIR}/../setup/docker_container/postgresql"
+rm -rf ${DIR}/../hapi/loaders/*/*loaded.txt
+rm -rf ${DIR}/../hapi/loaders/*/*loading.txt

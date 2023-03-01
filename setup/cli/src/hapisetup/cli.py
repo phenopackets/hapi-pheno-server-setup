@@ -1,24 +1,23 @@
+import os
+
 import click
-from . import docker_compose, load_env
+from . import docker_compose, load_env, init_env
 from typing import List
 
 
 @click.group()
-# @click.option('--profiles', envvar='HAPISETUP_PROFILES')
-def hapisetup(**kwargs):
+@click.option('--profiles', envvar='HS_PROFILES', default='')
+def hapisetup(profiles: str):
+    if profiles:
+        os.environ['HS_PROFILES'] = profiles
+    init_env()
     load_env()
 
-    # for name, value in sorted(os.environ.items()):
-    #     print("   " + name + "=" + value)
 
-
-# @hapisetup.command()
-# def do_something():
-#     print("Doing something")
-
-
-# @hapisetup.group()
-# def docker():
+@hapisetup.command()
+def env():
+    for name, value in sorted(os.environ.items()):
+        print("\t" + name + "=" + value)
 
 
 @hapisetup.group(context_settings={"ignore_unknown_options": True}, invoke_without_command=True)

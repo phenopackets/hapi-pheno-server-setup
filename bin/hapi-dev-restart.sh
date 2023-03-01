@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -x
 set -e
 set -u
 set -o pipefail
@@ -15,4 +15,9 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-"${DIR}/hapi.sh" compose up --build
+"${DIR}/hapisetup.sh" compose down
+rm -rf "${DIR}/../setup/docker_container/elasticsearch"
+#rm -rf "${DIR}/../setup/docker_container/hapi_build/data-volume"/*  # this doesn't delete the .m2 directory to save time.
+rm -rf "${DIR}/../setup/docker_container/postgresql"
+
+"${DIR}/hapisetup.sh" compose up --build
