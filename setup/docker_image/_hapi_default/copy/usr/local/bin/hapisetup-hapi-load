@@ -8,7 +8,7 @@ shopt -s nullglob
 
 hapisetup-hapi-cli-install
 
-export FHIR_API_BASE=http://127.0.0.1:8080/fhir
+export FHIR_API_BASE="http://hapi:${HS_HAPI_PORT}/fhir"
 
 WAIT=0
 while true; do
