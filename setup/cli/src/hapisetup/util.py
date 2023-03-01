@@ -11,7 +11,9 @@ def run_subprocess(command: List[str], evn: Mapping):
 
 def init_env():
     exec(open(f'config/env-init.py').read())
-
+    init_local_path = Path('config/env-init-local.py')
+    if init_local_path.exists():
+        exec(open(init_local_path).read())
 
 def load_env():
     for env in os.environ['HS_PROFILES'].split(','):
