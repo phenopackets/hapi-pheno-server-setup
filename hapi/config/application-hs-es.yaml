@@ -8,12 +8,17 @@ spring:
       hibernate:
         search:
           enabled: true
-          type: elasticsearch
-          backend.analysis.configurer: ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$HapiElasticAnalysisConfigurer
+          backend:
+            type: elasticsearch
+            analysis:
+              configurer: ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers$HapiElasticAnalysisConfigurer
+#            schema_management:
+#              settings_file: file:/hapi/config/es-index-settings.json
+#              mapping_file: file:/hapi/config/es-mapping-settings.json
 
 elasticsearch:
 #  debug:
-#    pretty_print_json_log: false
+  pretty_print_json_log: true
 #    refresh_after_write: false
   enabled: true
   protocol: 'http'
