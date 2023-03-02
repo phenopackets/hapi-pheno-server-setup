@@ -79,6 +79,10 @@ if [[ ${B_FROM_SOURCE} == true ]]; then
     done
   fi
 
+  if [[ ${HS_HAPI_BUILD_ALWAYS} == 'true' ]]; then
+    B_EXISTING=
+  fi
+
   if [[ ${B_EXISTING} ]]; then
     B_ROOTWAR="/hapi-build/_builds/${B_BINARY_DIR}/${B_EXISTING}"
   else
