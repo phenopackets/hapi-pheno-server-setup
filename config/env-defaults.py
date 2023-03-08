@@ -128,7 +128,7 @@ environ['HS_HAPI_ES_PASSWD'] = environ.get('HS_HAPI_ES_PASSWD',
                                            environ['HS_ESREST_PASSWORD'])
 
 environ['HS_HAPI_CONFIG_LOCATIONS'] = environ.get('HS_HAPI_CONFIG_LOCATIONS',
-                                                  'file:./config/,classpath:application.yaml')
+                                                  'classpath:application.yaml,file:./config/')
 environ['HS_HAPI_API_URL'] = environ.get('HS_HAPI_API_URL',
                                          f"http://{environ['HS_HAPI_HOST_PUBLIC']}:{environ['HS_HAPI_PORT_PUBLIC']}/fhir")
 
