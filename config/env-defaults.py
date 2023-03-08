@@ -71,7 +71,7 @@ environ['HS_HAPI_BUILD_DOWNLOAD_URL'] = environ.get('HS_HAPI_BUILD_DOWNLOAD_URL'
 environ['HS_HAPI_BUILD_GIT_REPO'] = environ.get('HS_HAPI_BUILD_GIT_REPO',
                                                 'https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git')
 environ['HS_HAPI_BUILD_GIT_REF'] = environ.get('HS_HAPI_BUILD_GIT_REF',
-                                               'image/v6.4.0')
+                                               'refs/tags/v6.4.0')
 
 # type source
 environ['HS_HAPI_BUILD_SOURCE_PATH'] = environ.get('HS_HAPI_BUILD_SOURCE_PATH', '')
