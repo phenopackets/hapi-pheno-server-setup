@@ -1,5 +1,9 @@
 from os import environ
 
+# Overwrite profiles from env-init.py if needed
+# environ['HS_PROFILES'] = 'env-defaults,hs-defaults,hs-pg,hs-es,hs-local'
+
+
 # Set the following to your actual environment.
 environ['HS_HAPI_HOST'] = '127.0.0.1'
 environ['HS_HAPI_HOST_PUBLIC'] = '127.0.0.1'
