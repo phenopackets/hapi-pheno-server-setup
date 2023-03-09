@@ -15,6 +15,9 @@ def init_env():
     if init_local_path.exists():
         exec(open(init_local_path).read())
 
+    # Override with command line profiles
+    environ['HS_PROFILES'] = environ.get('HS_PROFILES_CMDLINE', environ['HS_PROFILES'])
+
 def load_env():
     for env in os.environ['HS_PROFILES'].split(','):
         if not env:

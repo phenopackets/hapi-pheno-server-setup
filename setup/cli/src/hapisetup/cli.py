@@ -6,10 +6,10 @@ from typing import List
 
 
 @click.group()
-@click.option('--profiles', envvar='HS_PROFILES', default='')
+@click.option('--profiles', envvar='HS_PROFILES')
 def hapisetup(profiles: str):
     if profiles:
-        os.environ['HS_PROFILES'] = profiles
+        os.environ['HS_PROFILES_CMDLINE'] = profiles
     init_env()
     load_env()
 
