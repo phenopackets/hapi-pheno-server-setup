@@ -1,7 +1,8 @@
 from os import environ
 
 # Overwrite profiles from env-init.py if needed
-# environ['HS_PROFILES'] = 'env-defaults,hs-defaults,hs-pg,hs-es,hs-local'
+# If you want to use HAPI with Postgresql and/or Elasticsearch and Kibana, uncomment the following line and adjust as needed.
+# environ['HS_PROFILES'] = 'env-defaults,hs-defaults,hs-postgresql,hs-elasticsearch,hs-kibana,hs-local'
 
 
 # Set the following to your actual environment.

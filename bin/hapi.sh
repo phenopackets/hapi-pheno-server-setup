@@ -52,24 +52,27 @@ function  logerror() {
 
 # OpenSearch warn if swap is on
 #
-if free | awk '/^Swap:/ {exit !$2}'; then
-    logwarn "swap is on but OpenSearch recommends it off: https://opensearch.org/docs/latest/install-and-configure/install-opensearch/docker/#important-host-settings"
-fi
+# TODO: fix this for macOS (does not have free)
+#if free | awk '/^Swap:/ {exit !$2}'; then
+#    logwarn "swap is on but OpenSearch recommends it off: https://opensearch.org/docs/latest/install-and-configure/install-opensearch/docker/#important-host-settings"
+#fi
 
 # OpenSearch error and exit if memory maps lower than recommended.
-read -r mem_maps < /proc/sys/vm/max_map_count
-if [[ ${mem_maps} -lt 262144 ]]; then
-    logerror "memory maps value is ${mem_maps}"
-    logerror "memory maps is less than what OpenSearch recommends: https://opensearch.org/docs/latest/install-and-configure/install-opensearch/docker/#important-host-settings"
-    logerror "exiting 10"
-    exit 10
-fi
+# TODO: check if and how to do this in macOS
+#read -r mem_maps < /proc/sys/vm/max_map_count
+#if [[ ${mem_maps} -lt 262144 ]]; then
+#    logerror "memory maps value is ${mem_maps}"
+#    logerror "memory maps is less than what OpenSearch recommends: https://opensearch.org/docs/latest/install-and-configure/install-opensearch/docker/#important-host-settings"
+#    logerror "exiting 10"
+#    exit 10
+#fi
 
 
 export HS_VENV="${HS_VENV:-"${HS_HOME}/setup/.venv"}"
 
 if [[ ! -d ${HS_VENV} ]]; then
-  python3 -m venv --copies "${HS_VENV}"
+  # TODO: fix the --copies issue with some/all macOS
+  python3 -m venv "${HS_VENV}"
   . "${HS_VENV}/bin/activate"
   pip install -U pip
   pip install -e "${HS_HOME}/setup/cli"

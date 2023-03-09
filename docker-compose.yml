@@ -1,8 +1,8 @@
 services:
 
   postgresql:
-    #    profiles:
-    #      - disabled
+    profiles:
+      - hs-postgresql
     build:
       context: ${HS_PG_IMAGE_DIR:?err}
     stop_grace_period: 5m
@@ -29,6 +29,8 @@ services:
   #
 
   elasticsearch:
+    profiles:
+      - hs-elasticsearch
     build:
       context: ${HS_ESREST_IMAGE_DIR:?err}
     stop_grace_period: 5m
@@ -58,6 +60,8 @@ services:
         target: /usr/share/elasticsearch/data
   #
   kibana:
+    profiles:
+      - hs-kibana
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -102,16 +106,13 @@ services:
     #    profiles:
     #      - disabled
     depends_on:
-      elasticsearch:
-        condition: service_healthy
-      postgresql:
-        condition: service_healthy
       hapi-build:
         condition: service_completed_successfully
-    stop_grace_period: 5m
+    stop_grace_period: 10s
     build:
       context: ${HS_HAPI_IMAGE_DIR:?err}
     environment:
+      - HS_PROFILES
       - HS_HAPI_JAVA_OPTIONS
       - HS_HAPI_JAR
       - HS_HAPI_ARGS

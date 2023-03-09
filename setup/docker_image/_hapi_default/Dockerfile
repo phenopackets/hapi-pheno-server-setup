@@ -3,6 +3,7 @@ RUN apt-get update && apt-get install -y \
     python3 python3-venv \
     unzip \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /hapi
 COPY ./copy /

@@ -8,3 +8,4 @@
 /.idea
 
 /config/env-init-local.py
+/hapi/elasticsearch-curl.txt
