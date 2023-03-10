@@ -23,15 +23,13 @@ if [[ $(git rev-parse --is-inside-work-tree) == true || ${HS_HAPI_BUILD_TYPE} ==
   else
     B_FROM_SOURCE=true
     B_SOURCE_DIR="${HS_HAPI_BUILD_GIT_REPO//[${B_FILE_CHARS}]/_}"
-    if [[ -d ${B_SOURCE_DIR} ]]; then
-      cd "${B_SOURCE_DIR}"
-      git fetch --all --tags
-      git reset --hard "${HS_HAPI_BUILD_GIT_REF}"
-      git clean -xdfq
-    else
-      git clone --branch "${HS_HAPI_BUILD_GIT_REF}" "${HS_HAPI_BUILD_GIT_REPO}" "${B_SOURCE_DIR}"
-      cd "${B_SOURCE_DIR}"
+    if [[ ! -d ${B_SOURCE_DIR} ]]; then
+      git clone "${HS_HAPI_BUILD_GIT_REPO}" "${B_SOURCE_DIR}"
     fi
+    cd "${B_SOURCE_DIR}"
+    git fetch --all --tags
+    git checkout "${HS_HAPI_BUILD_GIT_REF}"
+    git clean -xdfq
   fi
 fi
 

@@ -80,7 +80,7 @@ environ['HS_HAPI_BUILD_VOLUME'] = environ.get('HS_HAPI_BUILD_VOLUME',
                                               or str(Path(environ[
                                                               'HS_HAPI_BUILD_CONTAINER_DIR']) / 'data-volume'))
 environ['HS_HAPI_BUILD_CMD'] = environ.get('HS_HAPI_BUILD_CMD',
-                                           'mvn -Pboot -DskipTests clean package')
+                                           'mvn -U -Pboot -DskipTests clean package')
 environ['HS_HAPI_BUILD_ALWAYS'] = environ.get('HS_HAPI_BUILD_ALWAYS', 'false')
 
 if not Path(environ['HS_HAPI_BUILD_IMAGE_DIR']).is_dir():

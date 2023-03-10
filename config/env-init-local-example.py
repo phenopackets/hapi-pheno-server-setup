@@ -14,5 +14,5 @@ environ['HS_HAPI_PORT_PUBLIC'] = '18080'
 # Uncomment and set your desired repo and build command like this:
 #environ['HS_HAPI_BUILD_GIT_REPO'] = 'https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git'
 #environ['HS_HAPI_BUILD_GIT_REF'] = 'refs/tags/v6.4.0'
-#environ['HS_HAPI_BUILD_CMD'] = 'mvn -Pboot -DskipTests clean package'
+#environ['HS_HAPI_BUILD_CMD'] = 'mvn -U -Pboot -DskipTests clean package'
 #environ['HS_HAPI_BUILD_ALWAYS'] = 'false'
