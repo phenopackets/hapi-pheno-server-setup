@@ -28,7 +28,7 @@ if [[ $(git rev-parse --is-inside-work-tree) == true || ${HS_HAPI_BUILD_TYPE} ==
     fi
     cd "${B_SOURCE_DIR}"
     git fetch --all --tags
-    git checkout "${HS_HAPI_BUILD_GIT_REF}"
+    git reset --hard "${HS_HAPI_BUILD_GIT_REF}"
     git clean -xdfq
   fi
 fi

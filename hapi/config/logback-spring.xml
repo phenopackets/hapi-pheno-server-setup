@@ -38,7 +38,7 @@
     <logger name="org.springframework.core" level="INFO">
         <!--        <appender-ref ref="STDOUT"/>-->
     </logger>
-    <logger name="org.hibernate.search" level="DEBUG">
+    <logger name="org.hibernate.search" level="INFO">
         <!--        <appender-ref ref="STDOUT"/>-->
     </logger>
 
