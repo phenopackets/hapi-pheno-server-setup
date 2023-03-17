@@ -15,4 +15,4 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-"${DIR}/hapi.sh" --profiles 'env-defaults,env-javadebug,hs-defaults,hs-postgresql,hs-elasticserch,hs-local' compose up --build
+"${DIR}/hapi.sh" --profiles 'env-defaults,env-java-debug,hs-defaults,hs-postgresql,hs-elasticserch,hs-local' compose up --build

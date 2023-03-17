@@ -108,6 +108,8 @@ services:
     depends_on:
       hapi-build:
         condition: service_completed_successfully
+      postgresql:
+        condition: service_started  # The waiting for availability happens in setup/docker_image/_hapi_default/copy/usr/local/bin/hapisetup-hapi-run
     stop_grace_period: 10s
     build:
       context: ${HS_HAPI_IMAGE_DIR:?err}

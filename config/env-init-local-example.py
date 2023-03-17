@@ -4,6 +4,8 @@ from os import environ
 # If you want to use HAPI with Elasticsearch and Kibana, uncomment the following line and adjust as needed.
 # environ['HS_PROFILES'] = 'env-defaults,hs-defaults,hs-postgresql,hs-elasticsearch,hs-kibana,hs-local'
 
+# The following allows for shifting the ports by an offset.  This is the default offset
+environ['HS_PORT_OFFSET'] = environ.get('HS_PORT_OFFSET', '10000')
 
 # Set the following to your actual environment.
 environ['HS_HAPI_HOST'] = '127.0.0.1'
