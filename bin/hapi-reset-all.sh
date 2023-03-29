@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -x
 set -e
 set -u
 set -o pipefail
@@ -15,9 +15,12 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-. "${DIR}/.hapisetup"
 
-echo "CWD: $(pwd)"
-hapisetup hapi start --build-hapi --stdout --stderr --build-docker-image
-
-#"${DIR}/hapi.sh" compose up --build --exit-code-from hapi  --abort-on-container-exit
+${DIR}/hapi-stop.sh
+rm -rf "${DIR}/../hapi/logs"
+rm -rf "${DIR}/../hapi/target"
+rm -rf "${DIR}/../setup/.venv"
+rm -rf "${DIR}/../setup/docker_container"
+rm -rf "${DIR}/../setup/docker_container/postgresql"
+rm -rf ${DIR}/../hapi/loaders/*/*loaded.txt
+rm -rf ${DIR}/../hapi/loaders/*/*loading.txt

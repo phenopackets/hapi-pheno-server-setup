@@ -1,0 +1,16 @@
+
+HS_HOME=$(realpath "${DIR}/..")
+export HS_HOME
+cd "${HS_HOME}"
+
+export HS_VENV="${HS_VENV:-"${HS_HOME}/setup/.venv"}"
+
+if [[ ! -d ${HS_VENV} ]]; then
+  # TODO: fix the --copies issue with some/all macOS
+  python3 -m venv "${HS_VENV}"
+  . "${HS_VENV}/bin/activate"
+  pip install -U pip
+  pip install -e "${HS_HOME}/setup/cli"
+else
+  . "${HS_VENV}/bin/activate"
+fi

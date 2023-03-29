@@ -15,4 +15,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-"${DIR}/hapi.sh"  compose down
+. "${DIR}/.hapisetup"
+
+echo "CWD: $(pwd)"
+hapisetup hapi stop

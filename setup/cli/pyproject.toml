@@ -14,4 +14,4 @@ build-backend = 'setuptools.build_meta'
 #hapisetup = 'hapisetup:hapisetup'
 
 [project.entry-points."console_scripts"]
-hapi = "hapisetup:hapisetup"
+hapisetup = "hapisetup:hapisetup"

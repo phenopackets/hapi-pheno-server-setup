@@ -80,4 +80,4 @@ else
   . "${HS_VENV}/bin/activate"
 fi
 
-hapi "$@"
+hapisetup "$@"

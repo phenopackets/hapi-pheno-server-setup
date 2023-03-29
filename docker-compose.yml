@@ -79,6 +79,8 @@ services:
         published: ${HS_KIBANA_PORT:?err}
 
   hapi-build:
+    profiles:
+      - one-time
     build:
       context: ${HS_HAPI_BUILD_IMAGE_DIR:?err}
     user: ${HS_UID:?err}:${HS_GID:?err}
@@ -106,8 +108,8 @@ services:
     #    profiles:
     #      - disabled
     depends_on:
-      hapi-build:
-        condition: service_completed_successfully
+#      hapi-build:
+#        condition: service_completed_successfully
       postgresql:
         condition: service_started  # The waiting for availability happens in setup/docker_image/_hapi_default/copy/usr/local/bin/hapisetup-hapi-run
     stop_grace_period: 10s

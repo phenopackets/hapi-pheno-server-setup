@@ -17,6 +17,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 
 ${DIR}/hapi-stop.sh
+rm -rf "${DIR}/../hapi/target"
 rm -rf "${DIR}/../setup/docker_container/elasticsearch"
 rm -rf "${DIR}/../setup/docker_container/postgresql"
 rm -rf ${DIR}/../hapi/loaders/*/*loaded.txt

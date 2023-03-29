@@ -27,9 +27,9 @@ if [[ $(git rev-parse --is-inside-work-tree) == true || ${HS_HAPI_BUILD_TYPE} ==
       git clone "${HS_HAPI_BUILD_GIT_REPO}" "${B_SOURCE_DIR}"
     fi
     cd "${B_SOURCE_DIR}"
-    git fetch --all --tags
-    git reset --hard "${HS_HAPI_BUILD_GIT_REF}"
     git clean -xdfq
+    git fetch --all --tags
+    git checkout "${HS_HAPI_BUILD_GIT_REF}"
   fi
 fi
 
