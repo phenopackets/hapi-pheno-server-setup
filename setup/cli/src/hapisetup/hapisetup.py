@@ -38,6 +38,15 @@ class HapiSetup:
         for profile in environ['HS_PROFILES'].split(','):
             args.extend(['--profile', profile])
 
+        args.extend(['stop'])
+        self.docker_compose(args)
+
+    def down(self):
+        logging.info("Downing HAPI")
+        args = []
+        for profile in environ['HS_PROFILES'].split(','):
+            args.extend(['--profile', profile])
+
         args.extend(['down'])
         self.docker_compose(args)
 

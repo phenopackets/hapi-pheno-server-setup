@@ -91,15 +91,20 @@ def hapi():
 # @hapi_setup_common_options
 def hapi_start():
     logging.info('Start HAPI CLI')
-    global hapi_setup_instance
     hapi_setup_instance.start()
 
 
 @hapi.command(name='stop')
 def hapi_stop():
     logging.info('Stopping HAPI CLI')
-    global hapi_setup_instance
     hapi_setup_instance.stop()
+
+
+@hapi.command(name='down')
+def hapi_down():
+    logging.info('Downing HAPI CLI')
+    hapi_setup_instance.stop()
+    hapi_setup_instance.down()
 
 
 @hapi.command()
