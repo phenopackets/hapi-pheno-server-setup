@@ -51,7 +51,7 @@ class HapiSetup:
         self.docker_compose(args)
 
     def build_hapi(self) -> Optional[Popen]:
-        if not self.build_hapi:
+        if not self._build_hapi:
             return None
         args = ['run', '--rm']
         if self._build_docker_image:
@@ -86,6 +86,7 @@ class HapiSetup:
         if self._stderr:
             kwargs['stderr'] = None
 
+        print(compose)
         popen = Popen(compose, env=environ, **kwargs)
         popen.wait()
         return popen
