@@ -7,7 +7,7 @@ set -o noclobber
 shopt -s nullglob
 
 
-if [[ ${HS_PROFILES} == *hs-postgresql* ]]; then
+if [[ ,${HS_PROFILES}, == *,hs-postgresql,* ]]; then
   echo "HAPI using Postgresql. Checking if ready..."
   seconds=0
   while true; do
@@ -26,7 +26,7 @@ if [[ ${HS_PROFILES} == *hs-postgresql* ]]; then
   done
 fi
 
-if [[ ${HS_PROFILES} == *hs-elasticsearch* ]]; then
+if [[ ,${HS_PROFILES}, == *,hs-elasticsearch,* ]]; then
   echo "HAPI using Elasticsesarch. Checking if ready..."
 
   # https://www.strangebuzz.com/en/snippets/checking-if-the-elasticsearch-service-of-a-docker-container-is-ready
