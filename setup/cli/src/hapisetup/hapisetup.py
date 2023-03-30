@@ -5,8 +5,6 @@ from pathlib import Path
 from subprocess import Popen
 from typing import List, Optional
 
-from hapisetup import docker_compose
-
 
 class HapiSetup:
     def __init__(self,
@@ -23,22 +21,25 @@ class HapiSetup:
         self._stdout = stdout
         self._stderr = stderr
         self._restart_exit_code = restart_exit_code
-        self._popen: Popen = None
+        self._popen: Optional[Popen] = None
 
     def start(self):
         logging.info('Starting HAPI')
         while True:
-            self._popen = self.build_hapi()
-            if self._popen:
-                self._popen.wait()
+            self.build_hapi()
             logging.info('Finished building HAPI')
             self._popen = self.run_hapi()
-            if self._popen.wait() != self._restart_exit_code:
+            if self._popen.returncode != self._restart_exit_code:
                 break
 
     def stop(self):
         logging.info("Stopping HAPI")
-        self.docker_compose(['down']).wait()
+        args = []
+        for profile in environ['HS_PROFILES'].split(','):
+            args.extend(['--profile', profile])
+
+        args.extend(['down'])
+        self.docker_compose(args)
 
     def build_hapi(self) -> Optional[Popen]:
         if not self.build_hapi:
@@ -50,15 +51,20 @@ class HapiSetup:
         return self.docker_compose(args)
 
     def run_hapi(self) -> Popen:
-        args = ['up', '--exit-code-from', 'hapi']
+        args = []
+        for profile in environ['HS_PROFILES'].split(','):
+            args.extend(['--profile', profile])
+
+        args.extend(['up', '--exit-code-from', 'hapi'])
+
         if self._build_docker_image:
             args.append('--build')
+
         return self.docker_compose(args)
 
     def docker_compose(self, args: List[str]) -> Popen:
         compose = ['docker', 'compose']
-        for profile in environ['HS_PROFILES'].split(','):
-            compose.extend(['--profile', profile])
+
         compose.extend(args)
 
         kwargs = {
@@ -72,6 +78,7 @@ class HapiSetup:
             kwargs['stderr'] = None
 
         popen = Popen(compose, env=environ, **kwargs)
+        popen.wait()
         return popen
 
     def close(self, sig):
