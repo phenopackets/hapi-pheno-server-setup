@@ -18,4 +18,4 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 . "${DIR}/.hapisetup"
 
 echo "CWD: $(pwd)"
-hapisetup hapi stop
+hapisetup --stdout --stderr hapi down

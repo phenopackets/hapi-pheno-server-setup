@@ -18,6 +18,6 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 . "${DIR}/.hapisetup"
 
 echo "CWD: $(pwd)"
-hapisetup hapi start --build-hapi --stdout --stderr --build-docker-image
+hapisetup --build-hapi --stdout --stderr --build-docker-image hapi start
 
 #"${DIR}/hapi.sh" compose up --build --exit-code-from hapi  --abort-on-container-exit
