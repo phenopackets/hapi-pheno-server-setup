@@ -1,8 +1,0 @@
-com:
-  essaid:
-    fhir:
-      hapi:
-        extensions:
-          provider-class-names:
-            - com.essaid.fhir.hapi.ext.provider.util.UtilsHapiProvider
-            - com.essaid.fhir.hapi.ext.provider.CodeSystemConceptSearchOperation

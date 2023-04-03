@@ -1,2 +1,2 @@
-com.essaid.fhir.hapi.extensions:
-  shutdownPassword: testing
+#com.essaid.fhir.hapi.extensions:
+#  shutdownPassword: testing
