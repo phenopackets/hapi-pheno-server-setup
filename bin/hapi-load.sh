@@ -15,4 +15,5 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-"${DIR}/hapi.sh"  hapi load
+. "${DIR}/.hapisetup"
+hapisetup --stdout --stderr hapi load
