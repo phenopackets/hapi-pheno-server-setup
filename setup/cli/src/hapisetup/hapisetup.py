@@ -26,9 +26,9 @@ class HapiSetup:
     def start(self):
         logging.info('Starting HAPI')
         while True:
-            self.build_hapi()
+            self.hapi_build()
             logging.info('Finished building HAPI')
-            self._popen = self.run_hapi()
+            self._popen = self.hapi_run()
             if self._popen.returncode != self._restart_exit_code:
                 break
 
@@ -50,7 +50,7 @@ class HapiSetup:
         args.extend(['down'])
         self.docker_compose(args)
 
-    def build_hapi(self) -> Optional[Popen]:
+    def hapi_build(self) -> Optional[Popen]:
         if not self._build_hapi:
             return None
         args = ['run', '--rm']
@@ -59,7 +59,7 @@ class HapiSetup:
         args.append('hapi-build')
         return self.docker_compose(args)
 
-    def run_hapi(self) -> Popen:
+    def hapi_run(self) -> Popen:
         args = []
         for profile in environ['HS_PROFILES'].split(','):
             args.extend(['--profile', profile])
@@ -70,6 +70,11 @@ class HapiSetup:
             args.append('--build')
 
         return self.docker_compose(args)
+
+    def hapi_load(self):
+        logging.info("Loading HAPI")
+        args = ['exec', 'hapi', 'hapisetup-hapi-load']
+        self.docker_compose(args)
 
     def docker_compose(self, args: List[str]) -> Popen:
         compose = ['docker', 'compose']

@@ -109,4 +109,4 @@ def hapi_down():
 
 @hapi.command()
 def load():
-    return docker_compose(['exec', 'hapi', 'hapisetup-hapi-load'])
+    hapi_setup_instance.hapi_load()
