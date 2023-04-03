@@ -28,6 +28,9 @@
     <appender name="FILE-NEW" class="ch.qos.logback.core.FileAppender">
         <file>logs/start/logfile-${bySecond}.log</file>
         <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <encoder>
             <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%file:%line] %msg%n</Pattern>
         </encoder>
