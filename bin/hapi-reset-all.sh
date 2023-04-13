@@ -21,6 +21,5 @@ rm -rf "${DIR}/../hapi/logs"
 rm -rf "${DIR}/../hapi/target"
 rm -rf "${DIR}/../setup/.venv"
 rm -rf "${DIR}/../setup/docker_container"
-rm -rf "${DIR}/../setup/docker_container/postgresql"
 rm -rf ${DIR}/../hapi/loaders/*/*loaded.txt
 rm -rf ${DIR}/../hapi/loaders/*/*loading.txt

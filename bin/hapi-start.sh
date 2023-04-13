@@ -15,9 +15,11 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-. "${DIR}/.hapisetup"
+HS_HOME=$(realpath "${DIR}/..")
+export HS_HOME
+cd "${HS_HOME}"
+
+. "${HS_HOME}/bin/.hapisetup"
 
 echo "CWD: $(pwd)"
 hapisetup --build-hapi --stdout --stderr --build-docker-image hapi start
-
-#"${DIR}/hapi.sh" compose up --build --exit-code-from hapi  --abort-on-container-exit

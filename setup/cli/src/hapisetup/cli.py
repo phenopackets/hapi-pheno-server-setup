@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 hapi_setup_instance: Optional[HapiSetup] = None
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.option('--profiles', envvar='HS_PROFILES')
 @click.option('--setup-path', type=Path, default=Path.cwd())
 @click.option('--restart_exit_code', type=int, default=10)

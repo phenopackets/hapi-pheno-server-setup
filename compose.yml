@@ -6,8 +6,9 @@ services:
     build:
       context: ${HS_PG_IMAGE_DIR:?err}
     stop_grace_period: 5m
-    environment:
-      - POSTGRES_PASSWORD=${HS_PG_PASSWORD:?err}
+    env_file:
+      - config/compose-postgresql.env
+      - config/compose-postgresql-local.env
     user: ${HS_UID:?err}:${HS_GID:?err}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -34,12 +35,9 @@ services:
     build:
       context: ${HS_ESREST_IMAGE_DIR:?err}
     stop_grace_period: 5m
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx4g"  # https://www.elastic.co/guide/en/elasticsearch/reference/7.16/advanced-configuration.html
-      - bootstrap.memory_lock=true
-      - ELASTIC_PASSWORD=${HS_ESREST_PASSWORD:?err}
+    env_file:
+      - config/compose-elasticsearch.evn
+      - config/compose-elasticsearch-local.env
     ulimits:
       memlock:
         soft: -1
@@ -58,7 +56,7 @@ services:
       - type: bind
         source: ${HS_ESREST_CONTAINER_DIR:?err}/data-volume
         target: /usr/share/elasticsearch/data
-  #
+
   kibana:
     profiles:
       - hs-kibana
@@ -68,11 +66,9 @@ services:
     stop_grace_period: 5m
     build:
       context: ${HS_KIBANA_IMAGE_DIR:?err}
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - xpack.security.enabled=true
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=${HS_KIBANA_PASSWORD:?err}
+    env_file:
+      - config/compose-kibana.env
+      - config/compose-kibana-local.env
     ports:
       - target: 5601
         host_ip: ${HS_KIBANA_HOST:?err}
@@ -84,17 +80,9 @@ services:
     build:
       context: ${HS_HAPI_BUILD_IMAGE_DIR:?err}
     user: ${HS_UID:?err}:${HS_GID:?err}
-    environment:
-      - HS_HAPI_BUILD_CMD
-      - HS_HAPI_BUILD_TYPE
-      - HS_HAPI_BUILD_GIT_REPO
-      - HS_HAPI_BUILD_GIT_REF
-      - HS_HAPI_BUILD_ALWAYS
-    #      - HS_HAPIBUILD # if a build should be done
-    #      - HS_HAPIBUILD_FROM  # the path/repo to build from
-    #      - HS_HAPIBUILD_REF  # if we're using a git ref, set it here
-    #      - HS_HAPIBUILD_CMD  # the maven command to build the artifact
-    #      - HS_HAPIBUILD_JARNAME  # the name to copy the Jar to
+    env_file:
+      - config/compose-hapi-build.env
+      - config/compose-hapi-build-local.env
     volumes:
       - type: bind
         source: ${HS_HAPI_BUILD_VOLUME:?err}
@@ -115,23 +103,9 @@ services:
     stop_grace_period: 10s
     build:
       context: ${HS_HAPI_IMAGE_DIR:?err}
-    environment:
-      - HS_PROFILES
-      - HS_HAPI_JAVA_OPTIONS
-      - HS_HAPI_JAR
-      - HS_HAPI_ARGS
-      - HS_HAPI_VERSION
-      - HS_HAPI_DB_HOST
-      - HS_HAPI_DB_PORT
-      - HS_HAPI_DB_NAME
-      - HS_HAPI_DB_USER
-      - HS_HAPI_DB_PASSWD
-      - HS_HAPI_ES_HOST
-      - HS_HAPI_ES_PORT
-      - HS_HAPI_ES_USER
-      - HS_HAPI_ES_PASSWD
-      - HS_HAPI_PORT
-      - HS_HAPI_API_URL
+    env_file:
+      - config/compose-hapi.env
+      - config/compose-hapi-local.env
     ports:
       - target: ${HS_HAPI_PORT:?err}
         host_ip: ${HS_HAPI_HOST:?err}

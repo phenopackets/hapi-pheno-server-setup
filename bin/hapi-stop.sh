@@ -15,7 +15,10 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-. "${DIR}/.hapisetup"
+HS_HOME=$(realpath "${DIR}/..")
+export HS_HOME
+cd "${HS_HOME}"
 
-echo "CWD: $(pwd)"
+. "${HS_HOME}/bin/.hapisetup"
+
 hapisetup --stdout --stderr hapi down
