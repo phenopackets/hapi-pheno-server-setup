@@ -8,5 +8,4 @@ hapi:
       home:
         name: HAPI Compose Setup
         server_address: ${HS_HAPI_API_URL}
-        refuse_to_fetch_third_party_urls: false
         fhir_version: R4

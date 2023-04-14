@@ -15,6 +15,9 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-. "${DIR}/.hapisetup"
+HS_HOME=$(realpath "${DIR}/..")
+export HS_HOME
+cd "${HS_HOME}"
 
-#"${DIR}/hapi.sh" compose up --build --exit-code-from hapi  --abort-on-container-exit
+. "${HS_HOME}/bin/.hapisetup"
+

@@ -21,5 +21,4 @@ cd "${HS_HOME}"
 
 . "${HS_HOME}/bin/.hapisetup"
 
-echo "CWD: $(pwd)"
 hapisetup --build-hapi --stdout --stderr --build-docker-image hapi start

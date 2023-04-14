@@ -1,13 +1,8 @@
-import functools
 import logging
 import os
-import signal
 from pathlib import Path
-
 import click
-from . import docker_compose, load_env, init_env
 from typing import List, Optional
-
 from .hapisetup import HapiSetup
 
 logging.basicConfig(level=logging.INFO)
@@ -44,8 +39,8 @@ def hapisetup(
 ):
     if profiles:
         os.environ['HS_PROFILES_CMDLINE'] = profiles
-    init_env()
-    load_env()
+
+    exec(open(f'config/env-init.py').read())
 
     global hapi_setup_instance
     hapi_setup_instance = HapiSetup(setup_path=setup_path,

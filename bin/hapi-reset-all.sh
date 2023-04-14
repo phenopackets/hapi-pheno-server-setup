@@ -15,11 +15,18 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+HS_HOME=$(realpath "${DIR}/..")
+export HS_HOME
+cd "${HS_HOME}"
 
-${DIR}/hapi-stop.sh
-rm -rf "${DIR}/../hapi/logs"
-rm -rf "${DIR}/../hapi/target"
-rm -rf "${DIR}/../setup/.venv"
-rm -rf "${DIR}/../setup/docker_container"
-rm -rf ${DIR}/../hapi/loaders/*/*loaded.txt
-rm -rf ${DIR}/../hapi/loaders/*/*loading.txt
+. "${HS_HOME}/bin/.hapisetup"
+
+"${DIR}/hapi-stop.sh"
+
+rm -rf "${HS_HOME}/hapi/logs"
+rm -rf "${HS_HOME}/hapi/target"
+rm -rf "${HS_HOME}/setup/.venv"
+rm -rf "${HS_HOME}/setup/docker_container"
+rm -rf "${HS_HOME}/hapi/loaders/*/*loaded.txt"
+rm -rf "${HS_HOME}/hapi/loaders/*/*loading.txt"
+

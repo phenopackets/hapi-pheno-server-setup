@@ -1,8 +1,34 @@
 import os
 import pathlib
 
-os.environ['HS_PROFILES'] = os.environ.get('HS_PROFILES', 'env-defaults,hs-postgresql,hs-defaults,hs-local')
+# Allow a  "project" to set HS_PROFILES and other variables as needed.
+init_project_path = pathlib.Path('config/env-init-project.py')
+if init_project_path.exists():
+    exec(open(init_project_path).read())
 
+# Allow local configuration to set/override HS_PROFILES
+init_local_path = Path('config/env-init-local.py')
+if init_local_path.exists():
+    exec(open(init_local_path).read())
+
+# If HS_PROFILES not already set, we set the default.
+os.environ['HS_PROFILES'] = os.environ.get('HS_PROFILES', 'env-defaults,hs-defaults,hs-project,hs-local')
+
+# Override with value from HS_PROFILES_CMDLINE which is set if --profiles command line option is used
+# This is to help scripts set the profiles they want for that run of the script and overriding the above configuration.
+os.environ['HS_PROFILES'] = os.environ.get('HS_PROFILES_CMDLINE', os.environ['HS_PROFILES'])
+
+# Load the profiles
+for env in os.environ['HS_PROFILES'].split(','):
+    if not env:
+        continue
+    env_path = Path(f'config/{env}.py').absolute()
+    #print(f'Attempting to load environment file: {env_path}')
+    if env_path.exists():
+        #print(f'Loading environment file: {env}')
+        exec(open(f'config/{env}.py').read())
+
+# Create these files if needed so compose.yml can resolve them.
 pathlib.Path('config/compose-postgresql-local.env').touch()
 pathlib.Path('config/compose-elasticsearch-local.env').touch()
 pathlib.Path('config/compose-kibana-local.env').touch()
