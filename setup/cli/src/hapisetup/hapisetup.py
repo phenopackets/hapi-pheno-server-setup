@@ -1,19 +1,19 @@
-import logging
-import subprocess
+import logging, shutil, subprocess, pathlib
 from os import environ
-from pathlib import Path
 from subprocess import Popen
 from typing import List, Optional
 
 
 class HapiSetup:
     def __init__(self,
-                 setup_path: Path,
+                 setup_path: pathlib.Path,
                  build_docker_image: bool,
                  build_hapi: bool,
                  stdout: bool,
                  stderr: bool,
-                 restart_exit_code: int
+                 restart_exit_code: int,
+                 attach: bool = False,
+                 debug: bool = False
                  ):
         self._setup_path = setup_path
         self._build_docker_image = build_docker_image
@@ -22,33 +22,106 @@ class HapiSetup:
         self._stderr = stderr
         self._restart_exit_code = restart_exit_code
         self._popen: Optional[Popen] = None
+        self._attach: bool = attach
+        self._debug = debug
+
+    # =========================
+    #
+    # =========================
 
     def start(self):
         logging.info('Starting HAPI')
         while True:
             self.hapi_build()
             logging.info('Finished building HAPI')
-            self._popen = self.hapi_run()
+            self._popen = self.hapi_run_with_exit_code()
             if self._popen.returncode != self._restart_exit_code:
                 break
 
-    def stop(self):
-        logging.info("Stopping HAPI")
-        args = []
-        for profile in environ['HS_PROFILES'].split(','):
-            args.extend(['--profile', profile])
+    def hapi_run_with_exit_code(self) -> Popen:
+        return self.compose(['up', '--exit-code-from', 'hapi'])
 
-        args.extend(['stop'])
-        self.docker_compose(args)
+    def stop(self):
+        logging.info("Stopping HAPI setup")
+        return self.compose(['stop'])
 
     def down(self):
-        logging.info("Downing HAPI")
-        args = []
-        for profile in environ['HS_PROFILES'].split(','):
-            args.extend(['--profile', profile])
+        logging.info("Downing HAPI setup")
+        return self.compose(['down'])
 
-        args.extend(['down'])
-        self.docker_compose(args)
+    def reset(self, pg, es, m2, logs, target,):
+        self.stop()
+        if pg:
+            self._remove_container('postgresql')
+        if es:
+            self._remove_container('elasticsearch')
+
+    # =========================
+    # Postgresql commands
+    # =========================
+
+    def postgresql_up(self):
+        args = []
+        args.extend(['up'])
+        self._up_args(args)
+        args.append('postgresql')
+        return self.compose(args)
+
+    def postgresql_stop(self):
+        args = []
+        args.extend(['stop', 'postgresql'])
+        return self.compose(args)
+
+    def postgresql_remove(self):
+        args = []
+        args.extend(['rm', '-f'])
+        return self.compose(args)
+
+    # =========================
+    # Elasticsearch commands
+    # =========================
+
+    def elasticsearch_up(self):
+        args = []
+        args.extend(['up'])
+        self._up_args(args)
+        args.append('elasticsearch')
+        return self.compose(args)
+
+    def elasticsearch_stop(self):
+        args = []
+        args.extend(['stop', 'elasticsearch'])
+        return self.compose(args)
+
+    def elasticsearch_remove(self):
+        args = []
+        args.extend(['rm', '-f'])
+        return self.compose(args)
+
+    # =========================
+    # Kibana commands
+    # =========================
+
+    def kibana_up(self):
+        args = []
+        args.extend(['up'])
+        self._up_args(args)
+        args.append('kibana')
+        return self.compose(args)
+
+    def kibana_stop(self):
+        args = []
+        args.extend(['stop', 'kibana'])
+        return self.compose(args)
+
+    def kibana_remove(self):
+        args = []
+        args.extend(['rm', '-f'])
+        return self.compose(args)
+
+    # =========================
+    #
+    # =========================
 
     def hapi_build(self) -> Optional[Popen]:
         if not self._build_hapi:
@@ -57,44 +130,40 @@ class HapiSetup:
         if self._build_docker_image:
             args.append('--build')
         args.append('hapi-build')
-        return self.docker_compose(args)
-
-    def hapi_run(self) -> Popen:
-        args = []
-        for profile in environ['HS_PROFILES'].split(','):
-            args.extend(['--profile', profile])
-
-        args.extend(['up', '--exit-code-from', 'hapi'])
-
-        if self._build_docker_image:
-            args.append('--build')
-
-        return self.docker_compose(args)
+        return self.compose(args)
 
     def hapi_load(self):
         logging.info("Loading HAPI")
         args = ['exec', 'hapi', 'hapisetup-hapi-load']
-        self.docker_compose(args)
+        return self.compose(args)
 
-    def docker_compose(self, args: List[str]) -> Popen:
+    def compose(self, args: List[str]):
         compose = ['docker', 'compose']
 
+        for profile in environ['HS_PROFILES'].split(','):
+            compose.extend(['--profile', profile])
         compose.extend(args)
 
         kwargs = {
             'stdout': subprocess.DEVNULL,
             'stderr': subprocess.DEVNULL
         }
-
         if self._stdout:
             kwargs['stdout'] = None
         if self._stderr:
             kwargs['stderr'] = None
 
-        print(compose)
+        if self._debug:
+            logging.debug(f'Running docker compose with args: {compose} and Popen options: {kwargs}')
         popen = Popen(compose, env=environ, **kwargs)
         popen.wait()
         return popen
 
-    def close(self, sig):
-        self._popen.send_signal(sig)
+    def _up_args(self, args):
+        if self._build_docker_image:
+            args.append('--build')
+        if not self._attach:
+            args.append('--detach')
+
+    def _remove_container(self, container: str):
+        shutil.rmtree(self._setup_path / 'setup' / 'docker_container' / container)

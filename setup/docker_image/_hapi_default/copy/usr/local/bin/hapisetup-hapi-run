@@ -6,6 +6,18 @@ set -o pipefail
 set -o noclobber
 shopt -s nullglob
 
+#USERID=$(id -u)
+#
+#if ! getent passwd $USERID; then
+#  sudo groupadd --gid $USERID hapi
+#  sudo useradd --uid $USERID --gid hapi --shell /bin/bash --create-home /hapi hapi
+#fi
+#
+#echo "user id: $(id)"
+#cat /etc/passwd
+
+#mkdir -p /hapi/.fhir
+
 
 if [[ ,${HS_PROFILES}, == *,hs-postgresql,* ]]; then
   echo "HAPI using Postgresql. Checking if ready..."
@@ -53,4 +65,4 @@ if [[ ,${HS_PROFILES}, == *,hs-elasticsearch,* ]]; then
 fi
 
 
-eval " exec java ${HS_HAPI_JAVA_OPTIONS} -jar ${HS_HAPI_JAR} ${HS_HAPI_ARGS}"
+eval "exec java ${HS_HAPI_JAVA_OPTIONS} -jar ${HS_HAPI_JAR} ${HS_HAPI_ARGS}"

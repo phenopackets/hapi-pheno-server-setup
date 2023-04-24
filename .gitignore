@@ -8,3 +8,5 @@
 /.idea
 
 /hapi/elasticsearch-curl.txt
+
+bin/tmp-*

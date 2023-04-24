@@ -21,4 +21,4 @@ cd "${HS_HOME}"
 
 . "${HS_HOME}/bin/.hapisetup"
 
-hapisetup --stdout --stderr hapi down
+hapisetup down

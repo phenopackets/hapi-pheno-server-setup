@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /hapi
+#RUN #mkdir -p /hapi/.fhir
+#RUN ln -s /hapi/.fhir /.fhir
 COPY ./copy /
 CMD ["hapisetup-hapi-run"]
 

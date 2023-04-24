@@ -1,4 +1,24 @@
+if [[ -z "${HS_HOME:-}" ]]; then
+    echo -n "HS_HOME not set, "
+    # https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced#answer-28776166
+    (return 0 2>/dev/null) && { echo "returning 1"; return 1; }  || { echo "exiting 1"; exit 1; }
+fi
+
 export HS_VENV="${HS_VENV:-"${HS_HOME}/setup/.venv"}"
+
+if  [[ ! -d "setup/cli" ]]; then
+    echo "Current directory is: $(pwd) but it should be the root of the setup. Exiting 1."
+fi
+
+# check if we want to remove the .venv
+GIT_HEAD=$(git rev-parse HEAD)
+touch "setup/git-last-head"
+GIT_HEAD_OLD=$(<setup/git-last-head)
+if [[ $GIT_HEAD != $GIT_HEAD_OLD ]]; then
+    echo "Removing setup/.venv, if it exists, because Git HEAD is not current."
+    rm -fr "setup/.venv"
+    echo -n $GIT_HEAD >| setup/git-last-head
+fi
 
 if [[ ! -d ${HS_VENV} ]]; then
   # TODO: fix the --copies issue with some/all macOS

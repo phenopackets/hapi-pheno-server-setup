@@ -6,7 +6,7 @@ from pathlib import Path
 environ['HS_UID'] = environ.get('HS_UID', str(os.getuid()))
 environ['HS_GID'] = environ.get('HS_GID', str(os.getgid()))
 
-environ['HS_PORT_OFFSET'] = environ.get('HS_PORT_OFFSET', '10000')
+environ['HS_PORT_OFFSET'] = environ.get('HS_PORT_OFFSET', '20000')
 
 #  Postgresql =====================
 
