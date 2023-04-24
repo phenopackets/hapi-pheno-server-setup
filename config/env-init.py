@@ -1,15 +1,15 @@
 import os
 import pathlib
 
-# Allow a  "project" to set HS_PROFILES and other variables as needed.
+# Allow a  "project" to set HS_PROFILES and other variables as needed and be committed.
 init_project_path = pathlib.Path('config/env-init-project.py')
-if init_project_path.exists():
-    exec(open(init_project_path).read())
+init_project_path.touch()
+exec(open(init_project_path).read())
 
 # Allow local configuration to set/override HS_PROFILES
 init_local_path = Path('config/env-init-local.py')
-if init_local_path.exists():
-    exec(open(init_local_path).read())
+init_local_path.touch()
+exec(open(init_local_path).read())
 
 # If HS_PROFILES not already set, we set the default.
 os.environ['HS_PROFILES'] = os.environ.get('HS_PROFILES', 'env-defaults,hs-defaults,hs-project,hs-local')
