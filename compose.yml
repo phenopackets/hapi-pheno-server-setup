@@ -8,6 +8,7 @@ services:
     stop_grace_period: 5m
     env_file:
       - config/compose-postgresql.env
+      - config/compose-postgresql-project.env
       - config/compose-postgresql-local.env
     user: ${HS_UID:?err}:${HS_GID:?err}
     healthcheck:
@@ -37,6 +38,7 @@ services:
     stop_grace_period: 5m
     env_file:
       - config/compose-elasticsearch.evn
+      - config/compose-elasticsearch-project.env
       - config/compose-elasticsearch-local.env
     ulimits:
       memlock:
@@ -68,6 +70,7 @@ services:
       context: ${HS_KIBANA_IMAGE_DIR:?err}
     env_file:
       - config/compose-kibana.env
+      - config/compose-kibana-project.env
       - config/compose-kibana-local.env
     ports:
       - target: 5601
@@ -82,6 +85,7 @@ services:
     user: ${HS_UID:?err}:${HS_GID:?err}
     env_file:
       - config/compose-hapi-build.env
+      - config/compose-hapi-build-project.env
       - config/compose-hapi-build-local.env
     volumes:
       - type: bind
@@ -105,6 +109,7 @@ services:
       context: ${HS_HAPI_IMAGE_DIR:?err}
     env_file:
       - config/compose-hapi.env
+      - config/compose-hapi-project.env
       - config/compose-hapi-local.env
     ports:
       - target: ${HS_HAPI_PORT:?err}
