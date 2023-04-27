@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 # signal.signal(signal.SIGINT, stop_hapi_setup_instance)
 
-hapisetup_instance: Optional[HapiSetup] = None
+hs: Optional[HapiSetup] = None
 
 
 @click.group(invoke_without_command=True)
@@ -65,38 +65,38 @@ def hapisetup(
 
     exec(open(f'config/env-init.py').read())
 
-    global hapisetup_instance
-    hapisetup_instance = HapiSetup(setup_path=setup_path,
-                                   build_docker_image=build_docker_image,
-                                   build_hapi=build_hapi,
-                                   stdout=not no_out,
-                                   stderr=not no_err,
-                                   restart_exit_code=restart_exit_code,
-                                   debug=debug,
-                                   attach=attach)
+    global hs
+    hs = HapiSetup(setup_path=setup_path,
+                   build_docker_image=build_docker_image,
+                   build_hapi=build_hapi,
+                   stdout=not no_out,
+                   stderr=not no_err,
+                   restart_exit_code=restart_exit_code,
+                   debug=debug,
+                   attach=attach)
 
 
 # =========================
 # General commands
 # =========================
 
-@hapisetup.command()
-def start():
+@hapisetup.command(name='start')
+def hs_start():
     logging.info('Running compose up hapi')
-    hapisetup_instance.start()
+    hs.start()
 
 
-@hapisetup.command()
-def stop():
+@hapisetup.command(name='stop')
+def hs_stop():
     logging.info('Running compose stop')
-    hapisetup_instance.stop()
+    hs.stop()
 
 
-@hapisetup.command()
-def down():
+@hapisetup.command(name='down')
+def hs_down():
     logging.info('Running compose down')
-    hapisetup_instance.stop()
-    hapisetup_instance.down()
+    hs.stop()
+    hs.down()
 
 
 @hapisetup.command(name='compose', context_settings=dict(
@@ -104,13 +104,13 @@ def down():
     allow_extra_args=True,
 ))
 @click.pass_context
-def hapisetup_compose(ctx):
+def hs_compose(ctx):
     """Simply runs docker compose with the command line args specified."""
-    hapisetup_instance.compose(ctx.args)
+    hs.compose(ctx.args)
 
 
-@hapisetup.command()
-def hapisetup_env():
+@hapisetup.command(name='env')
+def hs_env():
     """Show the effective environment."""
     for name, value in sorted(os.environ.items()):
         print("\t" + name + "=" + value)
@@ -119,10 +119,14 @@ def hapisetup_env():
 @hapisetup.command(name='reset')
 @click.option('--pg', is_flag=True)
 @click.option('--es', is_flag=True)
-@click.option('--hapi', is_flag=True)
-@click.option('--hapi-build', is_flag=True)
-def hapisetup_reset(pg, es):
-    hapisetup_instance.reset(pg=pg, es=es)
+@click.option('--hapi-target', is_flag=True)
+@click.option('--hapi-logs', is_flag=True)
+@click.option('--hapi-loaders', is_flag=True)
+# @click.option('--hapi-build', is_flag=True)
+# @click.option('--hapi-build-m2', is_flag=True)
+def hs_reset(**kwargs):
+    print(kwargs)
+    hs.reset(**kwargs)
 
 
 # =========================
@@ -142,19 +146,19 @@ def postgresql():
 
 @postgresql.command(name='up')
 def postgresql_start():
-    hapisetup_instance.postgresql_up()
+    hs.postgresql_up()
 
 
 @postgresql.command(name='stop')
 def postgresql_stop():
-    hapisetup_instance.postgresql_stop()
+    hs.postgresql_stop()
 
 
 @postgresql.command(name='remove')
 def postgresql_remove():
     """Stops and removes the Postgresql container"""
-    hapisetup_instance.postgresql_stop()
-    hapisetup_instance.postgresql_remove()
+    hs.postgresql_stop()
+    hs.postgresql_remove()
 
 
 # =========================
@@ -171,20 +175,20 @@ def elasticsearch():
 @elasticsearch.command(name='up')
 def elasticsearch_start():
     """Start Elasticsearch"""
-    hapisetup_instance.elasticsearch_up()
+    hs.elasticsearch_up()
 
 
 @elasticsearch.command(name='stop')
 def elasticsearch_stop():
     """Stop Elasticsearch"""
-    hapisetup_instance.elasticsearch_stop()
+    hs.elasticsearch_stop()
 
 
 @elasticsearch.command(name='remove')
 def elasticsearch_remove():
     """Stops and removes the Elasticsearch container"""
-    hapisetup_instance.elasticsearch_stop()
-    hapisetup_instance.elasticsearch_remove()
+    hs.elasticsearch_stop()
+    hs.elasticsearch_remove()
 
 
 # =========================
@@ -200,20 +204,20 @@ def kibana():
 @kibana.command(name='up')
 def kibana_start():
     """Up the Kibana container"""
-    hapisetup_instance.kibana_up()
+    hs.kibana_up()
 
 
 @kibana.command(name='stop')
 def kibana_stop():
     """Stop Kibana container"""
-    hapisetup_instance.kibana_stop()
+    hs.kibana_stop()
 
 
 @kibana.command(name='remove')
 def kibana_remove():
     """Stops and removes the Kibana container"""
-    hapisetup_instance.kibana_stop()
-    hapisetup_instance.kibana_remove()
+    hs.kibana_stop()
+    hs.kibana_remove()
 
 
 # =========================
@@ -226,13 +230,14 @@ def hapi():
     pass
 
 
-@hapi.command()
+@hapi.command(name='load')
 def load():
-    hapisetup_instance.hapi_load()
+    hs.hapi_load()
 
-    # =========================
-    # Hidden
-    # =========================
+
+# =========================
+# Hidden
+# =========================
 
 
 @hapisetup.command(hidden=True)

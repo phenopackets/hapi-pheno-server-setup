@@ -14,7 +14,11 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
-cd "${DIR}/.."
-pwd
-. ./bin/.setup
-# We're now in the repo root folder with environment and other common setup already done.
+
+HS_HOME=$(realpath "${DIR}/..")
+export HS_HOME
+cd "${HS_HOME}"
+
+. "${HS_HOME}/bin/.setup"
+
+hapisetup "$@"

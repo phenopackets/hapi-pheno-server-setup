@@ -19,6 +19,6 @@ HS_HOME=$(realpath "${DIR}/..")
 export HS_HOME
 cd "${HS_HOME}"
 
-. "${HS_HOME}/bin/.hapisetup"
+. "${HS_HOME}/bin/.setup"
 
-hapisetup --stdout --stderr hapi load
+hapisetup reset --pg --es --hapi-target --hapi-logs --hapi-loaders

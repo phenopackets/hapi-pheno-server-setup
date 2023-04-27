@@ -49,12 +49,25 @@ class HapiSetup:
         logging.info("Downing HAPI setup")
         return self.compose(['down'])
 
-    def reset(self, pg, es, m2, logs, target,):
-        self.stop()
-        if pg:
+    def reset(self, **kwargs):
+        self.down()
+        if kwargs['pg']:
             self._remove_container('postgresql')
-        if es:
+        if kwargs['es']:
             self._remove_container('elasticsearch')
+        if kwargs['hapi_target']:
+            shutil.rmtree(self._setup_path / 'hapi' / 'target', ignore_errors=True)
+        if kwargs['hapi_logs']:
+            shutil.rmtree(self._setup_path / 'hapi' / 'logs', ignore_errors=True)
+        if kwargs['hapi_loaders']:
+            for p in (self._setup_path / 'hapi' / 'loaders').glob("**/*loaded.txt"):
+                p.unlink()
+            for p in (self._setup_path / 'hapi' / 'loaders').glob("**/*loading.txt"):
+                p.unlink()
+            for p in (self._setup_path / 'hapi' / 'loaders').glob("**/*response.txt"):
+                p.unlink()
+        # if kwargs['hapi_build']:
+        #     shutil.rmtree(self._setup_path / 'hapi' / 'logs', ignore_errors=True)
 
     # =========================
     # Postgresql commands
@@ -166,4 +179,4 @@ class HapiSetup:
             args.append('--detach')
 
     def _remove_container(self, container: str):
-        shutil.rmtree(self._setup_path / 'setup' / 'docker_container' / container)
+        shutil.rmtree(self._setup_path / 'setup' / 'docker_container' / container, ignore_errors=True)
