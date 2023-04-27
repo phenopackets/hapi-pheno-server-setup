@@ -21,4 +21,5 @@ cd "${HS_HOME}"
 
 . "${HS_HOME}/bin/.setup"
 
-hapisetup --build-hapi --build-docker-image start
+hapisetup compose build
+hapisetup --build-hapi start
