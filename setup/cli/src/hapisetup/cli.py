@@ -23,6 +23,8 @@ hs: Optional[HapiSetup] = None
 
 @click.group(invoke_without_command=True)
 @click.option('--profiles', envvar='HS_PROFILES')
+@click.option('--profiles-prefix', envvar='HS_PROFILES_PREFIX', default='')
+@click.option('--profiles-suffix', envvar='HS_PROFILES_SUFFIX', default='')
 @click.option('--no-profiles', is_flag=True)
 @click.option('--setup-path', type=Path, default=Path.cwd())
 @click.option('--build-docker-image', is_flag=True)
@@ -34,6 +36,8 @@ hs: Optional[HapiSetup] = None
 @click.option('--attach', '-d', is_flag=True)
 def hapisetup(
         profiles: str,
+        profiles_prefix: str,
+        profiles_suffix: str,
         no_profiles: bool,
         setup_path: Path,
         build_docker_image: bool,
@@ -62,6 +66,9 @@ def hapisetup(
 
     if no_profiles:
         os.environ['HS_PROFILES_CMDLINE'] = ''
+
+    os.environ['HS_PROFILES_PREFIX'] = profiles_prefix
+    os.environ['HS_PROFILES_SUFFIX'] = profiles_suffix
 
     exec(open(f'config/env-init.py').read())
 
@@ -231,8 +238,9 @@ def hapi():
 
 
 @hapi.command(name='load')
-def load():
-    hs.hapi_load()
+@click.option('--loaders-dir', default='loaders', help='The relative path to a loaders directory under hapi/...')
+def load(loaders_dir):
+    hs.hapi_load(loaders_dir)
 
 
 # =========================

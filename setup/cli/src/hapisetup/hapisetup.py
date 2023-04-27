@@ -145,9 +145,9 @@ class HapiSetup:
         args.append('hapi-build')
         return self.compose(args)
 
-    def hapi_load(self):
-        logging.info("Loading HAPI")
-        args = ['exec', 'hapi', 'hapisetup-hapi-load']
+    def hapi_load(self, loaders_dir):
+        logging.info(f"Loading HAPI from: {loaders_dir}")
+        args = ['exec', 'hapi', 'hapisetup-hapi-load', loaders_dir]
         return self.compose(args)
 
     def compose(self, args: List[str]):

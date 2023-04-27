@@ -8,6 +8,7 @@ shopt -s nullglob
 
 hapisetup-hapi-cli-install
 
+LOADERS_DIR=$(realpath "$1")
 export FHIR_API_BASE="http://hapi:${HS_HAPI_PORT}/fhir"
 
 WAIT=0
@@ -30,11 +31,11 @@ done
 HAPI_CLI="$(pwd)/hapi-cli/v${HS_HAPI_VERSION}/hapi-fhir-cli"
 export  HAPI_CLI
 
-cd loaders
-unzip -o "*.zip"
+cd "${LOADERS_DIR}"
+unzip -o "*.zip" || true
 
-for d in $(find "$(pwd)" -mindepth 1 -maxdepth 1 -type d | sort); do
-  #for d in "${TTS_HOME}/loaders"/*; do
+for d in $(find "${LOADERS_DIR}" -mindepth 1 -maxdepth 1 -type d | sort); do
+
   if [[ -d $d ]]; then
     if [[ $d == *.off ]]; then
       echo skipping loader: "$d"
@@ -42,7 +43,7 @@ for d in $(find "$(pwd)" -mindepth 1 -maxdepth 1 -type d | sort); do
     fi
 
     if [ -f "${d}/load.sh" ]; then
-      echo loading: "$d"
+      echo "loading directory: $d"
       chmod u+x "${d}/load.sh"
       "${d}/load.sh"
     fi
