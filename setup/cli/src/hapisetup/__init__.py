@@ -1,1 +1,1 @@
-from .cli import hapisetup
+from .cli import cli

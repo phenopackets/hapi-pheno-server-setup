@@ -127,3 +127,14 @@ environ['HS_HAPI_ARGS'] = environ.get(f'HS_HAPI_ARGS', f'--debug --spring.profil
 if not Path(environ['HS_HAPI_IMAGE_DIR']).is_dir():
     shutil.copytree(environ['HS_HAPI_IMAGE_DIR_DEFAULT'], environ['HS_HAPI_IMAGE_DIR'])
 (Path(environ['HS_HAPI_CONTAINER_DIR'])).mkdir(parents=True, exist_ok=True)
+
+# ========================================
+# Janusgraph  ============================
+# ========================================
+
+environ['HS_JANUSGRAPH_IMAGE_DIR_DEFAULT'] = environ.get('HS_JANUSGRAPH_IMAGE_DIR_DEFAULT',
+                                                   str(Path('setup/docker_image/_janusgraph_default')))
+environ['HS_JANUSGRAPH_IMAGE_DIR'] = environ.get('HS_JANUSGRAPH_IMAGE_DIR', environ['HS_JANUSGRAPH_IMAGE_DIR_DEFAULT'])
+environ['HS_JANUSGRAPH_HOST'] = environ.get('HS_JANUSGRAPH_HOST', '127.0.0.1')
+environ['HS_JANUSGRAPH_PORT'] = environ.get('HS_JANUSGRAPH_PORT', str(8182 + int(environ['HS_PORT_OFFSET'])))
+

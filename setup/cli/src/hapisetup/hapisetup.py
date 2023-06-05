@@ -1,4 +1,7 @@
-import logging, shutil, subprocess, pathlib
+import logging
+import pathlib
+import shutil
+import subprocess
 from os import environ
 from subprocess import Popen
 from typing import List, Optional
@@ -149,6 +152,32 @@ class HapiSetup:
         logging.info(f"Loading HAPI from: {loaders_dir}")
         args = ['exec', 'hapi', 'hapisetup-hapi-load', loaders_dir]
         return self.compose(args)
+
+    # =========================
+    # Jansugraph
+    # =========================
+
+    def janus_up(self):
+        logging.info(f'Janusgraph up.')
+        args = []
+        args.extend(['up'])
+        self._up_args(args)
+        args.append('janusgraph')
+        return self.compose(args)
+
+    def janus_stop(self):
+        args = []
+        args.extend(['stop', 'janusgraph'])
+        return self.compose(args)
+
+    def janus_remove(self):
+        args = []
+        args.extend(['rm', '-f', 'janusgraph'])
+        return self.compose(args)
+
+    # =========================
+    # Compose
+    # =========================
 
     def compose(self, args: List[str]):
         compose = ['docker', 'compose']

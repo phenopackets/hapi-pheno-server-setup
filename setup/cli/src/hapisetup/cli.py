@@ -1,9 +1,12 @@
 import logging
 import os
+import pathlib
 import sys
+import typing
 from pathlib import Path
-import click
-from typing import List, Optional
+
+import typer
+
 from .hapisetup import HapiSetup
 
 logging.basicConfig(level=logging.INFO)
@@ -18,35 +21,26 @@ logging.basicConfig(level=logging.INFO)
 
 # signal.signal(signal.SIGINT, stop_hapi_setup_instance)
 
-hs: Optional[HapiSetup] = None
+hs: HapiSetup | None = None
+
+cli = typer.Typer(rich_markup_mode="markdown")
 
 
-@click.group(invoke_without_command=True)
-@click.option('--profiles', envvar='HS_PROFILES')
-@click.option('--profiles-prefix', envvar='HS_PROFILES_PREFIX', default='')
-@click.option('--profiles-suffix', envvar='HS_PROFILES_SUFFIX', default='')
-@click.option('--no-profiles', is_flag=True)
-@click.option('--setup-path', type=Path, default=Path.cwd())
-@click.option('--build-docker-image', is_flag=True)
-@click.option('--build-hapi', is_flag=True)
-@click.option('--no-out', is_flag=True)
-@click.option('--no-err', is_flag=True)
-@click.option('--restart_exit_code', type=int, default=10)
-@click.option('--debug', is_flag=True)
-@click.option('--attach', '-d', is_flag=True)
+@cli.callback()
 def hapisetup(
-        profiles: str,
-        profiles_prefix: str,
-        profiles_suffix: str,
-        no_profiles: bool,
-        setup_path: Path,
-        build_docker_image: bool,
-        build_hapi: bool,
-        no_out: bool,
-        no_err: bool,
-        restart_exit_code: int,
-        debug: bool,
-        attach: bool
+        profiles: typing.Annotated[str, typer.Option(envvar='HS_PROFILES')] = '',
+        no_profiles: typing.Annotated[bool, typer.Option('--no_profiles')] = False,
+        build_docker_image: typing.Annotated[bool, typer.Option('--build-docker-image')] = False,
+        build_hapi: typing.Annotated[bool, typer.Option('--build-hapi')] = False,
+        no_out: typing.Annotated[bool, typer.Option('--no-out')] = False,
+        no_err: typing.Annotated[bool, typer.Option('--no-err')] = False,
+        debug: typing.Annotated[bool, typer.Option('--debug')] = False,
+        attach: typing.Annotated[bool, typer.Option('--attach')] = False,
+
+        restart_exit_code: typing.Annotated[int, typer.Option()] = 10,
+        setup_path: typing.Annotated[Path, typer.Option()] = Path.cwd(),
+        profiles_prefix: typing.Annotated[str, typer.Option(envvar='HS_PROFILES_PREFIX')] = '',
+        profiles_suffix: typing.Annotated[str, typer.Option()] = '',
 ):
     root = logging.getLogger()
     root.setLevel(logging.INFO)
@@ -87,53 +81,56 @@ def hapisetup(
 # General commands
 # =========================
 
-@hapisetup.command(name='start')
+# @hapisetup.command(name='start')
+@cli.command(name='start')
 def hs_start():
     logging.info('Running compose up hapi')
     hs.start()
 
 
-@hapisetup.command(name='stop')
+# @hapisetup.command(name='stop')
+@cli.command(name='stop')
 def hs_stop():
     logging.info('Running compose stop')
     hs.stop()
 
 
-@hapisetup.command(name='down')
+# @hapisetup.command(name='down')
+@cli.command(name='down')
 def hs_down():
     logging.info('Running compose down')
     hs.stop()
     hs.down()
 
 
-@hapisetup.command(name='compose', context_settings=dict(
+@cli.command(name='compose', context_settings=dict(
     ignore_unknown_options=True,
     allow_extra_args=True,
 ))
-@click.pass_context
-def hs_compose(ctx):
+# @click.pass_context
+def hs_compose(ctx: typing.Annotated[typer.Context, typer.Argument()]):
     """Simply runs docker compose with the command line args specified."""
     hs.compose(ctx.args)
 
 
-@hapisetup.command(name='env')
+# @hapisetup.command(name='env')
+@cli.command(name='env')
 def hs_env():
     """Show the effective environment."""
     for name, value in sorted(os.environ.items()):
         print("\t" + name + "=" + value)
 
 
-@hapisetup.command(name='reset')
-@click.option('--pg', is_flag=True)
-@click.option('--es', is_flag=True)
-@click.option('--hapi-target', is_flag=True)
-@click.option('--hapi-logs', is_flag=True)
-@click.option('--hapi-loaders', is_flag=True)
-# @click.option('--hapi-build', is_flag=True)
-# @click.option('--hapi-build-m2', is_flag=True)
-def hs_reset(**kwargs):
-    print(kwargs)
-    hs.reset(**kwargs)
+@cli.command(name='reset')
+def hs_reset(
+        pg: typing.Annotated[bool, typer.Option(is_flag=True)],
+        es: typing.Annotated[bool, typer.Option(is_flag=True)],
+        hapi_target: typing.Annotated[bool, typer.Option(is_flag=True)],
+        hapi_logs: typing.Annotated[bool, typer.Option(is_flag=True)],
+        hapi_loaders: typing.Annotated[bool, typer.Option(is_flag=True)],
+):
+    # print(kwargs)
+    hs.reset(**locals())
 
 
 # =========================
@@ -145,23 +142,31 @@ def hs_reset(**kwargs):
 # Postgresql commands
 # =========================
 
-@hapisetup.group(name='pg')
+pg_cli: typer.Typer = typer.Typer(rich_markup_mode="markdown")
+cli.add_typer(pg_cli, name='pg')
+
+
+# @hapisetup.group(name='pg')
+@pg_cli.callback()
 def postgresql():
     """Postgresql specific subcommands"""
     pass
 
 
-@postgresql.command(name='up')
+# @postgresql.command(name='up')
+@pg_cli.command(name='up')
 def postgresql_start():
     hs.postgresql_up()
 
 
-@postgresql.command(name='stop')
+# @postgresql.command(name='stop')
+@pg_cli.command(name='stop')
 def postgresql_stop():
     hs.postgresql_stop()
 
 
-@postgresql.command(name='remove')
+# @postgresql.command(name='remove')
+@pg_cli.command(name='remove')
 def postgresql_remove():
     """Stops and removes the Postgresql container"""
     hs.postgresql_stop()
@@ -172,26 +177,33 @@ def postgresql_remove():
 # Elasticsearch commands
 # =========================
 
+es_cli = typer.Typer()
+cli.add_typer(es_cli, name='es')
 
-@hapisetup.group(name='es')
+
+# @hapisetup.group(name='es')
+@es_cli.callback()
 def elasticsearch():
     """Elasticsearch specific subcommands"""
     pass
 
 
-@elasticsearch.command(name='up')
+# @elasticsearch.command(name='up')
+@es_cli.command(name='up')
 def elasticsearch_start():
     """Start Elasticsearch"""
     hs.elasticsearch_up()
 
 
-@elasticsearch.command(name='stop')
+# @elasticsearch.command(name='stop')
+@es_cli.command(name='stop')
 def elasticsearch_stop():
     """Stop Elasticsearch"""
     hs.elasticsearch_stop()
 
 
-@elasticsearch.command(name='remove')
+# @elasticsearch.command(name='remove')
+@es_cli.command(name='remove')
 def elasticsearch_remove():
     """Stops and removes the Elasticsearch container"""
     hs.elasticsearch_stop()
@@ -202,25 +214,30 @@ def elasticsearch_remove():
 # Kibana commands
 # =========================
 
-@hapisetup.group(name='kibana')
+# @hapisetup.group(name='kibana')
+kibana_cli = typer.Typer(rich_markup_mode="markdown")
+cli.add_typer(kibana_cli, name='kibana')
+
+
+@kibana_cli.callback()
 def kibana():
     """Kibana specific subcommands"""
     pass
 
 
-@kibana.command(name='up')
+@kibana_cli.command(name='up')
 def kibana_start():
     """Up the Kibana container"""
     hs.kibana_up()
 
 
-@kibana.command(name='stop')
+@kibana_cli.command(name='stop')
 def kibana_stop():
     """Stop Kibana container"""
     hs.kibana_stop()
 
 
-@kibana.command(name='remove')
+@kibana_cli.command(name='remove')
 def kibana_remove():
     """Stops and removes the Kibana container"""
     hs.kibana_stop()
@@ -231,16 +248,53 @@ def kibana_remove():
 # HAPI commands
 # =========================
 
+hapi_cli = typer.Typer(rich_markup_mode="markdown")
+cli.add_typer(hapi_cli, name='hapi')
 
-@hapisetup.group()
+
+@hapi_cli.callback()
 def hapi():
     pass
 
 
-@hapi.command(name='load')
-@click.option('--loaders-dir', default='loaders', help='The relative path to a loaders directory under hapi/...')
-def load(loaders_dir):
+@hapi_cli.command(name='load')
+def load(loaders_dir: typing.Annotated[
+    pathlib.Path, typer.Option(help='The relative path to a loaders directory under hapi/...')] = pathlib.Path(
+    'loaders')):
     hs.hapi_load(loaders_dir)
+
+
+# =========================
+# Janus
+# =========================
+
+janus_cli = typer.Typer(rich_markup_mode="markdown")
+cli.add_typer(janus_cli, name='janus')
+
+
+@janus_cli.callback()
+def janus():
+    """Janusgraph specific subcommands"""
+    pass
+
+
+@janus_cli.command(name='up')
+def janus_start():
+    """Up the Janusgraph container"""
+    hs.janus_up()
+
+
+@janus_cli.command(name='stop')
+def janus_stop():
+    """Stop Janusgraph container"""
+    hs.janus_stop()
+
+
+@janus_cli.command(name='remove')
+def janus_remove():
+    """Stops and removes the Janusgraph container"""
+    hs.janus_stop()
+    hs.janus_remove()
 
 
 # =========================
@@ -248,8 +302,8 @@ def load(loaders_dir):
 # =========================
 
 
-@hapisetup.command(hidden=True)
-@click.option('--arg', multiple=True, default=[])
-def test(arg):
+@cli.command(name='test', hidden=True)
+# @click.option('--arg', multiple=True, default=[])
+def test(arg: typing.Annotated[typing.Optional[typing.List[str]], typer.Option()] = []):
     print(f'Value: {arg}')
     print(f'Type: {type(arg)}')

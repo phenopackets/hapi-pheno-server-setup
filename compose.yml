@@ -125,6 +125,19 @@ services:
         target: /hapi
 #
 
+  janusgraph:
+    profiles:
+      - hs-janus
+    build:
+      context: ${HS_JANUSGRAPH_IMAGE_DIR:?err}
+    env_file:
+      - config/compose-janus.env
+      - config/compose-janus-project.env
+      - config/compose-janus-local.env
+    ports:
+      - target: 8182
+        host_ip: ${HS_JANUSGRAPH_HOST:?err}
+        published: ${HS_JANUSGRAPH_PORT:?err}
 
 #  opensearch:
 #    profiles:

@@ -3,7 +3,8 @@ name = 'hapisetup'
 version = '0.1.0'
 
 dependencies = [
-    'click'
+    'typer',
+    'rich',
 ]
 
 [build-system]
@@ -14,4 +15,4 @@ build-backend = 'setuptools.build_meta'
 #hapisetup = 'hapisetup:hapisetup'
 
 [project.entry-points."console_scripts"]
-hapisetup = "hapisetup:hapisetup"
+hapisetup = "hapisetup:cli"
