@@ -1,0 +1,7 @@
+hapi:
+  fhir:
+    implementationguides:
+      phenopackets:
+        name: 'hl7.fhir.us.ga4gh.phenopacket'
+        version: '0.1.0'
+        url: 'http://phenopackets.org/core-ig/ig/branch/master/package.tgz'
