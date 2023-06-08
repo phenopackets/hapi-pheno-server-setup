@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 
 # signal.signal(signal.SIGINT, stop_hapi_setup_instance)
 
-hs: HapiSetup | None = None
+hs: typing.Optional[HapiSetup] = None
 
 cli = typer.Typer(rich_markup_mode="markdown")
 
