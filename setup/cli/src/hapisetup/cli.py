@@ -268,33 +268,67 @@ def load(loaders_dir: typing.Annotated[
 # Janus
 # =========================
 
-janus_cli = typer.Typer(rich_markup_mode="markdown")
-cli.add_typer(janus_cli, name='janus')
+janusgraph_cli = typer.Typer(rich_markup_mode="markdown")
+cli.add_typer(janusgraph_cli, name='janusgraph')
 
 
-@janus_cli.callback()
-def janus():
+@janusgraph_cli.callback()
+def janusgraph():
     """Janusgraph specific subcommands"""
     pass
 
 
-@janus_cli.command(name='up')
-def janus_start():
+@janusgraph_cli.command(name='up')
+def janusgraph_start():
     """Up the Janusgraph container"""
-    hs.janus_up()
+    hs.janusgraph_up()
 
 
-@janus_cli.command(name='stop')
-def janus_stop():
+@janusgraph_cli.command(name='stop')
+def janusgraph_stop():
     """Stop Janusgraph container"""
-    hs.janus_stop()
+    hs.janusgraph_stop()
 
 
-@janus_cli.command(name='remove')
-def janus_remove():
+@janusgraph_cli.command(name='remove')
+def janusgrapy_remove():
     """Stops and removes the Janusgraph container"""
-    hs.janus_stop()
-    hs.janus_remove()
+    hs.janusgraph_stop()
+    hs.janusgraph_remove()
+
+
+
+# =========================
+# Cassandra
+# =========================
+
+cassandra_cli = typer.Typer(rich_markup_mode="markdown")
+cli.add_typer(cassandra_cli, name='cassandra')
+
+
+@cassandra_cli.callback()
+def cassandra():
+    """Cassandra specific subcommands"""
+    pass
+
+
+@cassandra_cli.command(name='up')
+def cassandra_start():
+    """Up the Cassandra container"""
+    hs.cassandra_up()
+
+
+@cassandra_cli.command(name='stop')
+def cassandra_stop():
+    """Stop Cassandra container"""
+    hs.cassandra_stop()
+
+
+@cassandra_cli.command(name='remove')
+def cassandra_remove():
+    """Stops and removes the Janusgraph container"""
+    hs.cassandra_stop()
+    hs.cassandra_remove()
 
 
 # =========================

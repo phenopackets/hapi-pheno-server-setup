@@ -95,7 +95,6 @@ services:
         source: ${HS_HAPI_CONTAINER_DIR:?err}
         target: /hapi
 
-
   hapi:
     #    profiles:
     #      - disabled
@@ -131,13 +130,42 @@ services:
     build:
       context: ${HS_JANUSGRAPH_IMAGE_DIR:?err}
     env_file:
-      - config/compose-janus.env
-      - config/compose-janus-project.env
-      - config/compose-janus-local.env
+      - config/compose-janusgraph.env
+      - config/compose-janusgraph-project.env
+      - config/compose-janusgraph-local.env
     ports:
       - target: 8182
         host_ip: ${HS_JANUSGRAPH_HOST:?err}
         published: ${HS_JANUSGRAPH_PORT:?err}
+    healthcheck:
+      test: [ "CMD", "bin/gremlin.sh", "-e", "scripts/remote-connect.groovy" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  cassandra:
+    profiles:
+      - hs-cassandra
+    build:
+      context: ${HS_CASSANDRA_IMAGE_DIR:?err}
+    user: ${HS_UID:?err}:${HS_GID:?err}
+    env_file:
+      - config/compose-cassandra.env
+      - config/compose-cassandra-project.env
+      - config/compose-cassandra-local.env
+    ports:
+      - target: 9042
+        host_ip: ${HS_CASSANDRA_HOST:?err}
+        published: ${HS_CASSANDRA_PORT:?err}
+    volumes:
+      - type: bind
+        source: ${HS_CASSANDRA_CONTAINER_DIR:?err}/data-volume
+        target: /var/lib/cassandra
+    healthcheck:
+      test: [ "CMD", "cqlsh", "-e", "describe keyspaces" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 #  opensearch:
 #    profiles:

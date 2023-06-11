@@ -157,7 +157,7 @@ class HapiSetup:
     # Jansugraph
     # =========================
 
-    def janus_up(self):
+    def janusgraph_up(self):
         logging.info(f'Janusgraph up.')
         args = []
         args.extend(['up'])
@@ -165,14 +165,36 @@ class HapiSetup:
         args.append('janusgraph')
         return self.compose(args)
 
-    def janus_stop(self):
+    def janusgraph_stop(self):
         args = []
         args.extend(['stop', 'janusgraph'])
         return self.compose(args)
 
-    def janus_remove(self):
+    def janusgraph_remove(self):
         args = []
         args.extend(['rm', '-f', 'janusgraph'])
+        return self.compose(args)
+
+    # =========================
+    # Cassandra
+    # =========================
+
+    def cassandra_up(self):
+        logging.info(f'Cassandra up.')
+        args = []
+        args.extend(['up'])
+        self._up_args(args)
+        args.append('cassandra')
+        return self.compose(args)
+
+    def cassandra_stop(self):
+        args = []
+        args.extend(['stop', 'cassandra'])
+        return self.compose(args)
+
+    def cassandra_remove(self):
+        args = []
+        args.extend(['rm', '-f', 'cassandra'])
         return self.compose(args)
 
     # =========================

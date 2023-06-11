@@ -34,5 +34,5 @@ for env in [p.strip() for p in os.environ['HS_PROFILES'].split(',')]:
         exec(open(f'config/{env}.py').read())
 
 # Create these files if needed so compose.yml can resolve them.
-for local in ['postgresql', 'elasticsearch', 'kibana', 'hapi-build', 'hapi', 'janus']:
+for local in ['postgresql', 'elasticsearch', 'kibana', 'hapi-build', 'hapi', 'janusgraph', 'cassandra']:
     pathlib.Path(f'config/compose-{local}-local.env').touch()
