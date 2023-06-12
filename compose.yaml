@@ -1,0 +1,168 @@
+services:
+
+  postgresql:
+    profiles:
+      - hs-postgresql
+    build:
+      context: ${HS_PG_IMAGE_DIR:?err}
+    stop_grace_period: 5m
+    env_file:
+      - service/postgresql/default.env
+      - service/postgresql/project.env
+      - service/postgresql/local.env
+    user: ${HS_UID:?err}:${HS_GID:?err}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    ports:
+      - target: 5432
+        published: ${HS_PG_PORT:?err}
+        host_ip: ${HS_PG_HOST:?err}
+    volumes:
+      - type: bind
+        source: ${HS_PG_SERVICE_DIR:?err}/mounts/data
+        target: /var/lib/postgresql/data
+  #      - type: bind
+  #        source: /etc/passwd
+  #        target: /etc/passwd
+  #        read_only: true
+  #
+
+  elasticsearch:
+    profiles:
+      - hs-elasticsearch
+    build:
+      context: ${HS_ESREST_IMAGE_DIR:?err}
+    stop_grace_period: 5m
+    env_file:
+      - service/elasticsearch/default.evn
+      - service/elasticsearch/project.env
+      - service/elasticsearch/local.env
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    user: ${HS_UID:?err} #:${HS_GID:?err} to deal with keystore permissins when UID is not 1000. See: https://www.elastic.co/guide/en/elasticsearch/reference/7.13/docker.html#_configuration_files_must_be_readable_by_the_elasticsearch_user
+    ports:
+      - target: 9200
+        host_ip: ${HS_ESREST_HOST:?err}
+        published: ${HS_ESREST_PORT:?err}
+    healthcheck:
+      test: curl -u elastic:${HS_ESREST_PASSWORD:?err} -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - type: bind
+        source: ${HS_ESREST_SERVICE_DIR:?err}/mounts/data
+        target: /usr/share/elasticsearch/data
+
+  kibana:
+    profiles:
+      - hs-kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    stop_grace_period: 5m
+    build:
+      context: ${HS_KIBANA_IMAGE_DIR:?err}
+    env_file:
+      - service/kibana/default.env
+      - service/kibana/project.env
+      - service/kibana/local.env
+    ports:
+      - target: 5601
+        host_ip: ${HS_KIBANA_HOST:?err}
+        published: ${HS_KIBANA_PORT:?err}
+
+  hapi-build:
+    profiles:
+      - one-time
+    build:
+      context: ${HS_HAPI_BUILD_IMAGE_DIR:?err}
+    user: ${HS_UID:?err}:${HS_GID:?err}
+    env_file:
+      - service/hapi-build/default.env
+      - service/hapi-build/project.env
+      - service/hapi-build/local.env
+    volumes:
+      - type: bind
+        source: ${HS_HAPI_BUILD_VOLUME:?err}
+        target: /hapi-build
+      - type: bind
+        source: ${HS_HAPI_SERVICE_DIR:?err}/mounts/workdir
+        target: /hapi
+
+  hapi:
+    #    profiles:
+    #      - disabled
+    depends_on: # See https://github.com/docker/compose/issues/9795
+      postgresql:
+        condition: service_healthy  # The waiting for availability also happens in setup/docker_image/_hapi_default/copy/usr/local/bin/hapisetup-hapi-run
+      elasticsearch:
+        condition: service_healthy
+    stop_grace_period: 10s
+    build:
+      context: ${HS_HAPI_IMAGE_DIR:?err}
+    env_file:
+      - service/hapi/default.env
+      - service/hapi/project.env
+      - service/hapi/local.env
+    ports:
+      - target: ${HS_HAPI_PORT:?err}
+        host_ip: ${HS_HAPI_HOST:?err}
+        published: ${HS_HAPI_PORT:?err}
+      - host_ip: ${HS_HAPI_DEBUG_HOST:?err}
+        target: 8081
+        published: ${HS_HAPI_DEBUG_PORT}
+    user: ${HS_UID:?err}:${HS_GID:?err}
+    volumes:
+      - type: bind
+        source: ${HS_HAPI_SERVICE_DIR:?err}/mounts/workdir
+        target: /hapi
+#
+
+  janusgraph:
+    profiles:
+      - hs-janus
+    build:
+      context: ${HS_JANUSGRAPH_IMAGE_DIR:?err}
+    env_file:
+      - service/janusgraph/default.env
+      - service/janusgraph/project.env
+      - service/janusgraph/local.env
+    ports:
+      - target: 8182
+        host_ip: ${HS_JANUSGRAPH_HOST:?err}
+        published: ${HS_JANUSGRAPH_PORT:?err}
+    healthcheck:
+      test: [ "CMD", "bin/gremlin.sh", "-e", "scripts/remote-connect.groovy" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  cassandra:
+    profiles:
+      - hs-cassandra
+    build:
+      context: ${HS_CASSANDRA_IMAGE_DIR:?err}
+    user: ${HS_UID:?err}:${HS_GID:?err}
+    env_file:
+      - service/cassandra/default.env
+      - service/cassandra/project.env
+      - service/cassandra/local.env
+    ports:
+      - target: 9042
+        host_ip: ${HS_CASSANDRA_HOST:?err}
+        published: ${HS_CASSANDRA_PORT:?err}
+    volumes:
+      - type: bind
+        source: ${HS_CASSANDRA_SERVICE_DIR:?err}/mounts/data
+        target: /var/lib/cassandra
+    healthcheck:
+      test: [ "CMD", "cqlsh", "-e", "describe keyspaces" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
